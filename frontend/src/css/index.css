@@ -1,0 +1,20 @@
+/* Set default width for all input components */
+.ant-input {
+    width: 300px;
+}
+
+.ant-input-number {
+    width: 300px;
+}
+
+.ant-select {
+    width: 300px;
+}
+
+.ant-picker {
+    width: 300px;
+}
+
+.ant-input-textarea {
+    width: 300px;
+}
