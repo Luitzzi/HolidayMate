@@ -1,13 +1,12 @@
-import {AllRoutes} from "./AllRoutes.tsx";
-import './css/index.css'
+import { ConfigProvider } from "antd";
+import { AllRoutes } from "./AllRoutes.tsx";
+import { themeConfig } from "./theme/tokens.ts";
+import "./css/index.css";
 
-function App() {
+const App = () => (
+  <ConfigProvider theme={themeConfig}>
+    <AllRoutes />
+  </ConfigProvider>
+);
 
-  return (
-    <>
-      <AllRoutes />
-    </>
-  )
-}
-
-export default App
+export default App;

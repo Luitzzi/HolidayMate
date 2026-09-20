@@ -1,23 +1,45 @@
-import {Button, DatePicker, Flex, Input, Select} from "antd";
-import useTheme from "antd/es/config-provider/hooks/useTheme";
+import {
+  Button,
+  Card,
+  DatePicker,
+  Flex,
+  Input,
+  Select,
+  Typography,
+  theme,
+} from "antd";
+
 const { RangePicker } = DatePicker;
+const { Title } = Typography;
 
 export const PlanningPage = () => {
-    const theme = useTheme();
-    return (
-        <Flex align={"center"} vertical>
-            <h1>Planung</h1>
-            <Flex align={"center"} style={{width: "500px", padding: "5px", border: "solid 1px"}} gap={"small"} vertical>
-                <h2>Holiday-Metadata</h2>
-                <RangePicker placeholder={["Startdatum","Enddatum"]} width={"100px"} />
-                <Input placeholder={"Zielort"} />
-                <Select placeholder={"Holiday-Variante"} />
-            </Flex>
-            <Flex align={"center"} justify={"space-between"} style={{border: `} ${token.borderStyleBase}`}}>
-                <h2>Generierte Packlist</h2>
-                <Button>PDF</Button>
-            </Flex>
+  const { token } = theme.useToken();
 
+  return (
+    <Flex align="center" vertical gap={token.marginLG}>
+      <Title level={2} style={{ marginBottom: 0 }}>
+        Planung
+      </Title>
+
+      <Card title="Holiday-Metadata" style={{ width: 500 }}>
+        <Flex vertical gap={token.marginSM}>
+          <RangePicker
+            placeholder={["Startdatum", "Enddatum"]}
+            style={{ width: "100%" }}
+          />
+          <Input placeholder="Zielort" />
+          <Select placeholder="Holiday-Variante" style={{ width: "100%" }} />
         </Flex>
-    )
-} 
+      </Card>
+
+      <Card style={{ width: 500 }}>
+        <Flex align="center" justify="space-between">
+          <Title level={5} style={{ marginBottom: 0 }}>
+            Generierte Packliste
+          </Title>
+          <Button>PDF</Button>
+        </Flex>
+      </Card>
+    </Flex>
+  );
+};
