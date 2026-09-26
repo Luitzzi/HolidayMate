@@ -16,7 +16,7 @@ use the colors, typography, and spacing defined there — never invent a
 value that isn't defined. If something is missing, say so rather than
 guessing.
 
-The component reference and semantic-styling docs in docs/ are large.
+The component reference and semantic-styling docs in docs/antd-docs are large.
 Don't read them directly — use the `ant-design-consistency` skill, which
 knows how to search them.
 
