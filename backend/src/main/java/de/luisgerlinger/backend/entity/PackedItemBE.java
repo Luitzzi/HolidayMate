@@ -11,7 +11,7 @@ import java.util.UUID;
 @Getter
 @Setter
 public class PackedItemBE {
-    public static final String tableName = "packedItem";
+    public static final String tableName = "packedItems";
 
     @Id
     @GeneratedValue
@@ -19,13 +19,13 @@ public class PackedItemBE {
 
     private int amount;
 
-    private PackingCondition condition;
+    private PackingCondition packingCondition;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "activity_id")
     private ActivityBE activity;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "item_id")
     private ItemBE item;
 
