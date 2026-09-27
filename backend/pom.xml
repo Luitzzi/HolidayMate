@@ -40,6 +40,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
@@ -97,6 +102,36 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>cz.habarta.typescript-generator</groupId>
+                <artifactId>typescript-generator-maven-plugin</artifactId>
+                <version>3.2.1263</version>
+                <executions>
+                    <execution>
+                        <id>generate-ui-dtos</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <jsonLibrary>jackson2</jsonLibrary>
+                    <classPatterns>
+                        <classPattern>de.luisgerlinger.backend.**.*UiDTO</classPattern>
+                    </classPatterns>
+                    <outputKind>module</outputKind>
+                    <outputFileType>implementationFile</outputFileType>
+                    <outputFile>${project.basedir}/../frontend/src/generated/interface-api.ts</outputFile>
+                    <mapEnum>asUnion</mapEnum>
+                    <mapDate>asString</mapDate>
+                    <customTypeMappings>
+                        <mapping>java.time.LocalDate:string</mapping>
+                        <mapping>java.time.LocalDateTime:string</mapping>
+                    </customTypeMappings>
+                    <noFileComment>true</noFileComment>
+                </configuration>
             </plugin>
         </plugins>
     </build>
