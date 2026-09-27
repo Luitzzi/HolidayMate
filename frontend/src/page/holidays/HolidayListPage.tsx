@@ -1,0 +1,71 @@
+import { PlusOutlined } from "@ant-design/icons";
+import { Button, Empty, Flex, Listy, Tag, Typography, theme } from "antd";
+import { useNavigate } from "react-router";
+import { PageHeader } from "../../components/PageHeader.tsx";
+
+type PlannedHoliday = {
+  id: string;
+  location: string;
+  startDate: string;
+  endDate: string;
+  activities: string[];
+};
+
+// Filled from the backend once planned holidays can be saved.
+const holidays: PlannedHoliday[] = [];
+
+const formatDate = (isoDate: string) =>
+  new Date(isoDate).toLocaleDateString(undefined, { dateStyle: "medium" });
+
+export const HolidayListPage = () => {
+  const { token } = theme.useToken();
+  const navigate = useNavigate();
+
+  const planHoliday = () => navigate("/planning");
+
+  return (
+    <Flex vertical>
+      <PageHeader
+        title="Planned Holidays"
+        description="Your upcoming trips and their packing lists."
+      />
+
+      {holidays.length === 0 ? (
+        <Empty description="No holidays planned yet">
+          <Button type="primary" icon={<PlusOutlined />} onClick={planHoliday}>
+            Plan a holiday
+          </Button>
+        </Empty>
+      ) : (
+        <Flex vertical gap={token.marginLG}>
+          <Listy<PlannedHoliday>
+            items={holidays}
+            rowKey="id"
+            itemRender={({ location, startDate, endDate, activities }) => (
+              <Flex vertical gap={token.marginXS}>
+                <Typography.Text strong>{location}</Typography.Text>
+                <Typography.Text type="secondary">
+                  {formatDate(startDate)} – {formatDate(endDate)}
+                </Typography.Text>
+                <Flex wrap gap={token.marginXS}>
+                  {activities.map((activity) => (
+                    <Tag key={activity}>{activity}</Tag>
+                  ))}
+                </Flex>
+              </Flex>
+            )}
+          />
+          <Button
+            type="primary"
+            size="large"
+            block
+            icon={<PlusOutlined />}
+            onClick={planHoliday}
+          >
+            Plan a holiday
+          </Button>
+        </Flex>
+      )}
+    </Flex>
+  );
+};
