@@ -1,7 +1,6 @@
-/* Minimal global reset. antd v6 emits CSS variables by default (prefix --ant-),
-   so plain CSS can read design tokens directly instead of hard-coding values.
-   Component width and spacing are controlled at the component/layout level
-   via tokens (theme.useToken) — not by global class overrides. */
+/* Minimal global reset. Colors, spacing and sizes come from
+   src/theme/tokens.ts and are applied at the component/layout level —
+   not by global class overrides. */
 *,
 *::before,
 *::after {
@@ -11,8 +10,6 @@
 html,
 body {
   margin: 0;
-  /* Page background reads the three-layer surface model's bg-layout token. */
-  background: var(--ant-colorBgLayout, #f5f5f5);
 }
 
 #root {

@@ -8,7 +8,6 @@ import {
   Input,
   Select,
   Typography,
-  theme,
 } from "antd";
 import { useEffect, useState } from "react";
 import { activityApi, categoryApi } from "../../api/apiClient.ts";
@@ -21,11 +20,11 @@ import {
   toActivity,
   toFormValues,
 } from "./definitionForm.ts";
-import { PageHeader } from "../../components/PageHeader.tsx";
+import { SectionHeader } from "../../components/SectionHeader.tsx";
 import { PackedItemCount, PackedItemList } from "./PackedItemList.tsx";
+import { tokens } from "../../theme/tokens.ts";
 
 export const DefinitionPage = () => {
-  const { token } = theme.useToken();
   const { message } = App.useApp();
   const [form] = Form.useForm<DefinitionFormValues>();
 
@@ -104,12 +103,15 @@ export const DefinitionPage = () => {
 
   return (
     <Flex vertical style={{ minHeight: "100%" }}>
-      <PageHeader
+      <SectionHeader
         title="Definition Menu"
         description="Define activities with their associated equipment and tips for the next time."
       />
 
-      <Flex gap={token.marginSM} style={{ marginBottom: token.marginLG }}>
+      <Flex
+        gap={tokens.gap.small}
+        style={{ marginBottom: tokens.margin.large }}
+      >
         <Select
           placeholder="Select an activity to edit"
           loading={loading}
@@ -145,7 +147,7 @@ export const DefinitionPage = () => {
           <Input size="large" placeholder="Camping trip" />
         </Form.Item>
 
-        <Flex vertical gap={token.marginLG}>
+        <Flex vertical gap={tokens.gap.large}>
           {categories.map((category) => (
             <Collapse
               key={category}
@@ -164,7 +166,7 @@ export const DefinitionPage = () => {
                   label: (
                     <Typography.Text
                       strong
-                      style={{ fontSize: token.fontSizeLG }}
+                      style={{ fontSize: tokens.fontSize.large }}
                     >
                       {category}
                     </Typography.Text>
@@ -183,9 +185,9 @@ export const DefinitionPage = () => {
         style={{
           position: "sticky",
           bottom: 0,
-          marginTop: token.marginLG,
-          padding: `${token.padding}px 0`,
-          background: token.colorBgContainer,
+          marginTop: tokens.margin.large,
+          padding: `${tokens.padding.medium}px 0`,
+          background: tokens.color.background.container,
         }}
       >
         <Button

@@ -6,8 +6,9 @@ paths:
 
 # Design system conventions
 
-- Follow the design-system source-of-truth rule in CLAUDE.md (tokens.md
-  is authoritative for colors, typography, spacing).
+- Read colors, typography, spacing, radius and shadows from `tokens` in
+  src/theme/tokens.ts — never from antd's `theme.useToken()` or
+  `--ant-*` CSS variables. Principles: docs/design-tokens.md.
 - For component props/behavior or the semantic classNames/styles API,
   use the `ant-design-consistency` skill rather than reading
   docs/ant-design-documentation.txt or

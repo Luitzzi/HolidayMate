@@ -1,5 +1,6 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { Badge, Button, Flex, Form, Input, InputNumber, theme } from "antd";
+import { Badge, Button, Flex, Form, Input, InputNumber } from "antd";
+import { tokens } from "../../theme/tokens.ts";
 import type { PackedItemRow } from "./definitionForm.ts";
 
 type Props = {
@@ -7,14 +8,12 @@ type Props = {
 };
 
 export const PackedItemList = ({ category }: Props) => {
-  const { token } = theme.useToken();
-
   return (
     <Form.List name={["items", category]}>
       {(fields, { add, remove }) => (
-        <Flex vertical gap={token.marginSM}>
+        <Flex vertical gap={tokens.gap.small}>
           {fields.map(({ key, name }) => (
-            <Flex key={key} gap={token.marginSM} align="start">
+            <Flex key={key} gap={tokens.gap.small} align="start">
               <Form.Item
                 name={[name, "name"]}
                 rules={[
@@ -38,7 +37,7 @@ export const PackedItemList = ({ category }: Props) => {
                   min={1}
                   precision={0}
                   aria-label="Amount"
-                  style={{ width: token.controlHeightLG * 2 }}
+                  style={{ width: tokens.controlHeight.large * 2 }}
                 />
               </Form.Item>
               <Button
@@ -66,7 +65,6 @@ export const PackedItemList = ({ category }: Props) => {
 };
 
 export const PackedItemCount = ({ category }: Props) => {
-  const { token } = theme.useToken();
   const form = Form.useFormInstance();
   const rows = Form.useWatch<PackedItemRow[] | undefined>(
     ["items", category],
@@ -78,11 +76,11 @@ export const PackedItemCount = ({ category }: Props) => {
     <Badge
       count={count}
       showZero
-      color={count > 0 ? token.colorPrimary : token.colorFillSecondary}
+      color={count > 0 ? tokens.color.primary : tokens.color.fill}
       styles={
         count > 0
           ? undefined
-          : { indicator: { color: token.colorTextDisabled } }
+          : { indicator: { color: tokens.color.text.disabled } }
       }
     />
   );

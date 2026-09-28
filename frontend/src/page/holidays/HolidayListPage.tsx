@@ -1,7 +1,8 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { Button, Empty, Flex, Listy, Tag, Typography, theme } from "antd";
+import { Button, Empty, Flex, Listy, Tag, Typography } from "antd";
 import { useNavigate } from "react-router";
-import { PageHeader } from "../../components/PageHeader.tsx";
+import { SectionHeader } from "../../components/SectionHeader.tsx";
+import { tokens } from "../../theme/tokens.ts";
 
 type PlannedHoliday = {
   id: string;
@@ -18,14 +19,13 @@ const formatDate = (isoDate: string) =>
   new Date(isoDate).toLocaleDateString(undefined, { dateStyle: "medium" });
 
 export const HolidayListPage = () => {
-  const { token } = theme.useToken();
   const navigate = useNavigate();
 
   const planHoliday = () => navigate("/planning");
 
   return (
     <Flex vertical>
-      <PageHeader
+      <SectionHeader
         title="Planned Holidays"
         description="Your upcoming trips and their packing lists."
       />
@@ -37,17 +37,17 @@ export const HolidayListPage = () => {
           </Button>
         </Empty>
       ) : (
-        <Flex vertical gap={token.marginLG}>
+        <Flex vertical gap={tokens.gap.large}>
           <Listy<PlannedHoliday>
             items={holidays}
             rowKey="id"
             itemRender={({ location, startDate, endDate, activities }) => (
-              <Flex vertical gap={token.marginXS}>
+              <Flex vertical gap={tokens.gap.small}>
                 <Typography.Text strong>{location}</Typography.Text>
                 <Typography.Text type="secondary">
                   {formatDate(startDate)} – {formatDate(endDate)}
                 </Typography.Text>
-                <Flex wrap gap={token.marginXS}>
+                <Flex wrap gap={tokens.gap.small}>
                   {activities.map((activity) => (
                     <Tag key={activity}>{activity}</Tag>
                   ))}

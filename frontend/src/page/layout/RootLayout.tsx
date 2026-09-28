@@ -3,9 +3,10 @@ import {
   ScheduleOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Avatar, Flex, Grid, Layout, Menu, theme } from "antd";
+import { Avatar, Flex, Grid, Layout, Menu } from "antd";
 import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import logo from "../../assets/holidaymate-logo.png";
+import { tokens } from "../../theme/tokens.ts";
 
 const { Header, Content } = Layout;
 
@@ -15,7 +16,6 @@ const NAV_ITEMS = [
 ];
 
 export const RootLayout = () => {
-  const { token } = theme.useToken();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const screens = Grid.useBreakpoint();
@@ -26,22 +26,31 @@ export const RootLayout = () => {
 
   // Framed white box on larger screens (see docs/design-*.png), edge to edge on phones.
   const framed = screens.md;
-  const gutter = framed ? token.paddingXL : token.padding;
+  const gutter = framed
+    ? tokens.layout.gutter.desktop
+    : tokens.layout.gutter.mobile;
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout
+      style={{
+        minHeight: "100vh",
+        background: tokens.color.background.layout,
+      }}
+    >
       <Flex
         vertical
         style={{
           width: "100%",
-          maxWidth: token.screenXL,
-          minHeight: framed ? `calc(100vh - ${2 * token.marginXL}px)` : "100vh",
-          margin: framed ? `${token.marginXL}px auto` : 0,
-          background: token.colorBgContainer,
+          maxWidth: tokens.layout.maxWidth,
+          minHeight: framed
+            ? `calc(100vh - ${2 * tokens.layout.frameMargin}px)`
+            : "100vh",
+          margin: framed ? `${tokens.layout.frameMargin}px auto` : 0,
+          background: tokens.color.background.container,
           ...(framed && {
-            border: `${token.lineWidth}px ${token.lineType} ${token.colorBorderSecondary}`,
-            borderRadius: token.borderRadiusLG,
-            boxShadow: token.boxShadowTertiary,
+            border: `${tokens.borderWidth}px solid ${tokens.color.border.subtle}`,
+            borderRadius: tokens.radius.large,
+            boxShadow: tokens.shadow.raised,
             // clip instead of hidden keeps position: sticky working inside the box
             overflow: "clip",
           }),
@@ -51,17 +60,17 @@ export const RootLayout = () => {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: token.marginLG,
+            gap: tokens.gap.large,
             padding: `0 ${gutter}px`,
-            background: token.colorBgContainer,
-            borderBottom: `${token.lineWidth}px ${token.lineType} ${token.colorSplit}`,
+            background: tokens.color.background.container,
+            borderBottom: `${tokens.borderWidth}px solid ${tokens.color.border.subtle}`,
           }}
         >
           <Link to="/" style={{ display: "flex", flexShrink: 0 }}>
             <img
               src={logo}
               alt="HolidayMate"
-              style={{ height: token.controlHeightLG, display: "block" }}
+              style={{ height: tokens.controlHeight.large, display: "block" }}
             />
           </Link>
           <Menu

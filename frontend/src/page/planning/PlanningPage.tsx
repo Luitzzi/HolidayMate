@@ -9,18 +9,20 @@ import {
   Listy,
   Select,
   Typography,
-  theme,
 } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { activityApi } from "../../api/apiClient.ts";
-import { PageHeader, TitleDivider } from "../../components/PageHeader.tsx";
+import {
+  SectionHeader,
+  TitleDivider,
+} from "../../components/SectionHeader.tsx";
 import type { ActivityUiDTO } from "../../generated/interface-api.ts";
+import { tokens } from "../../theme/tokens.ts";
 import { buildPackingList, type PackingListEntry } from "./packingList.ts";
 
 const { RangePicker } = DatePicker;
 
 export const PlanningPage = () => {
-  const { token } = theme.useToken();
   const { message } = App.useApp();
 
   const [activities, setActivities] = useState<ActivityUiDTO[]>([]);
@@ -47,7 +49,7 @@ export const PlanningPage = () => {
 
   return (
     <Flex vertical>
-      <PageHeader
+      <SectionHeader
         title="Planning Menu"
         description="Let HolidayMate generate a packing list based on the location's weather and your defined holiday type."
       />
@@ -59,12 +61,15 @@ export const PlanningPage = () => {
           {
             key: "selection",
             label: (
-              <Typography.Text strong style={{ fontSize: token.fontSizeLG }}>
+              <Typography.Text
+                strong
+                style={{ fontSize: tokens.fontSize.large }}
+              >
                 Holiday Selection
               </Typography.Text>
             ),
             children: (
-              <Flex vertical gap={token.marginSM}>
+              <Flex vertical gap={tokens.gap.small}>
                 <RangePicker
                   size="large"
                   placeholder={["Start date", "End date"]}
@@ -90,7 +95,7 @@ export const PlanningPage = () => {
         ]}
       />
 
-      <div style={{ marginTop: token.marginLG }}>
+      <div style={{ marginTop: tokens.margin.large }}>
         <TitleDivider
           title="Generated Packing List"
           level={5}
