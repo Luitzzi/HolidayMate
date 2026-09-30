@@ -13,11 +13,13 @@ import java.util.UUID;
 @Getter
 @Setter
 @RequiredArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ItemBE {
     public static final String tableName = "item";
 
     @Id
     @GeneratedValue
+    @EqualsAndHashCode.Include
     private UUID id;
 
     @Column(nullable = false)
@@ -27,7 +29,6 @@ public class ItemBE {
     @JoinColumn(name = "category_id")
     private CategoryBE category;
 
-    @AttributeOverride(name = "name", column = @Column(name = "condition_name"))
     private PackingCondition itemCondition;
 
     @OneToMany(mappedBy = "item")

@@ -12,10 +12,9 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "A category grouping items, e.g. Clothing or Gear")
 public class CategoryUiDTO {
+
     private UUID id;
 
-    @Schema(example = "Clothing")
     private String name;
 }

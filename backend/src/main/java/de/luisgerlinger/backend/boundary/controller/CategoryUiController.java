@@ -22,7 +22,7 @@ public class CategoryUiController {
     @GetMapping
     @Operation(summary = "Get all categories, ordered by name")
     public List<CategoryUiDTO> getAll() {
-        return categoryBA.getAll();
+        return null;
     }
 
 }

@@ -32,23 +32,23 @@ public class ActivityUiController {
         return activityBA.getAll();
     }
 
+
     @GetMapping("/{id}")
     @Operation(summary = "Get an activity by id")
     @ApiResponse(responseCode = "200", description = "Activity found")
-    @ApiResponse(responseCode = "404", description = "Activity not found",
-            content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
-    public ActivityUiDTO get(@PathVariable UUID id) {
-        return activityBA.get(id);
+    @ApiResponse(responseCode = "404", description = "Activity not found")
+    public ResponseEntity<ActivityUiDTO> get(@PathVariable UUID id) {
+        return activityBA.getById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    @Operation(summary = "Create an activity",
-            description = "Items and categories are referenced by name and created if they do not exist yet.")
+    @Operation(summary = "Create an activity")
     @ApiResponse(responseCode = "201", description = "Activity created")
-    @ApiResponse(responseCode = "400", description = "Invalid request body",
-            content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
-    public ResponseEntity<ActivityUiDTO> create(@Valid @RequestBody ActivityUiDTO activityUiDTO) {
-        ActivityUiDTO created = activityBA.create(activityUiDTO);
+    @ApiResponse(responseCode = "400", description = "Invalid request body")
+    public ResponseEntity<ActivityUiDTO> create(@RequestParam ActivityUiDTO activity) {
+        ActivityUiDTO created = activityBA.create(activity);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(created.getId())
@@ -57,16 +57,18 @@ public class ActivityUiController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update an activity",
-            description = "Replaces name and packing list. Packed items are matched by id, "
-                    + "items without id are added and items not in the list are removed.")
+    @Operation(summary = "Update an activity")
     @ApiResponse(responseCode = "200", description = "Activity updated")
-    @ApiResponse(responseCode = "400", description = "Invalid request body",
-            content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
-    @ApiResponse(responseCode = "404", description = "Activity not found",
-            content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
-    public ActivityUiDTO update(@PathVariable UUID id, @Valid @RequestBody ActivityUiDTO activityUiDTO) {
-        return activityBA.update(id, activityUiDTO);
+    @ApiResponse(responseCode = "400", description = "Invalid request body")
+    @ApiResponse(responseCode = "404", description = "Activity not found")
+    public ResponseEntity<ActivityUiDTO> update(
+            @PathVariable UUID id,
+            @RequestParam ActivityUiDTO activity
+    ) {
+        ActivityUiDTO updated = activityBA.update(id, activity);
+        if (updated == null)
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(updated);
     }
 
 }

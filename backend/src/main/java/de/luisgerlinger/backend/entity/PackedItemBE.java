@@ -1,6 +1,7 @@
 package de.luisgerlinger.backend.entity;
 
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,11 +11,13 @@ import java.util.UUID;
 @Table(name = PackedItemBE.tableName)
 @Getter
 @Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class PackedItemBE {
     public static final String tableName = "packedItems";
 
     @Id
     @GeneratedValue
+    @EqualsAndHashCode.Include
     private UUID id;
 
     private int amount;

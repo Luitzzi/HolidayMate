@@ -8,6 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PackingCondition {
-    private String name;
+    private String conditionName;
     private String trigger;
 }
