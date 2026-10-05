@@ -11,7 +11,6 @@ import {
   Typography,
 } from "antd";
 import { useEffect, useMemo, useState } from "react";
-import { activityApi } from "../../api/apiClient.ts";
 import {
   SectionHeader,
   TitleDivider,
@@ -19,6 +18,7 @@ import {
 import type { ActivityUiDTO } from "../../generated/interface-api.ts";
 import { tokens } from "../../theme/tokens.ts";
 import { buildPackingList, type PackingListEntry } from "./packingList.ts";
+import { activityApi } from "../../api/activityApi.ts";
 
 const { RangePicker } = DatePicker;
 

@@ -31,7 +31,7 @@ public class ItemBE {
 
     private PackingCondition itemCondition;
 
-    @OneToMany(mappedBy = "item")
+    @OneToMany(mappedBy = "ofItem")
     private Set<PackedItemBE> packedItems = new HashSet<>();
 
 }

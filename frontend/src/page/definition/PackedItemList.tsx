@@ -1,21 +1,25 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Badge, Button, Flex, Form, Input, InputNumber } from "antd";
 import { tokens } from "../../theme/tokens.ts";
-import type { PackedItemRow } from "./definitionForm.ts";
+import type {
+  CategoryUiDTO,
+  PackedItemUiDTO,
+} from "../../generated/interface-api.ts";
+import { newPackedItem } from "./definitionForm.ts";
 
 type Props = {
-  category: string;
+  category: CategoryUiDTO;
 };
 
 export const PackedItemList = ({ category }: Props) => {
   return (
-    <Form.List name={["items", category]}>
+    <Form.List name={["items", category.id as string]}>
       {(fields, { add, remove }) => (
         <Flex vertical gap={tokens.gap.small}>
           {fields.map(({ key, name }) => (
             <Flex key={key} gap={tokens.gap.small} align="start">
               <Form.Item
-                name={[name, "name"]}
+                name={[name, "ofItem", "name"]}
                 rules={[
                   {
                     required: true,
@@ -54,7 +58,7 @@ export const PackedItemList = ({ category }: Props) => {
             size="large"
             block
             icon={<PlusOutlined />}
-            onClick={() => add({ name: "", amount: 1 } satisfies PackedItemRow)}
+            onClick={() => add(newPackedItem(category))}
           >
             Add item
           </Button>
@@ -66,8 +70,8 @@ export const PackedItemList = ({ category }: Props) => {
 
 export const PackedItemCount = ({ category }: Props) => {
   const form = Form.useFormInstance();
-  const rows = Form.useWatch<PackedItemRow[] | undefined>(
-    ["items", category],
+  const rows = Form.useWatch<PackedItemUiDTO[] | undefined>(
+    ["items", category.id],
     form,
   );
   const count = rows?.length ?? 0;

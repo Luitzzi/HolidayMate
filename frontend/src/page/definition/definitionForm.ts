@@ -1,26 +1,21 @@
-import type { ActivityUiDTO } from "../../generated/interface-api.ts";
-
-/** Categories shown even before any item of them exists (see mock). */
-export const DEFAULT_CATEGORIES = ["Clothing", "Gear", "Extras"];
-
-export type PackedItemRow = {
-  id?: string;
-  name: string;
-  amount: number;
-};
-
+import type {
+  ActivityUiDTO,
+  CategoryUiDTO,
+  PackedItemUiDTO,
+} from "../../generated/interface-api.ts";
 export type DefinitionFormValues = {
   name: string;
-  /** Packed items grouped by category name. */
-  items: Record<string, PackedItemRow[] | undefined>;
+  /** Packed items grouped by category id. */
+  items: Record<string, PackedItemUiDTO[] | undefined>;
 };
 
 export const EMPTY_FORM_VALUES: DefinitionFormValues = { name: "", items: {} };
 
 export const toFormValues = (activity: ActivityUiDTO): DefinitionFormValues => {
-  const items: Record<string, PackedItemRow[]> = {};
-  activity.packedItems.forEach(({ id, name, category, amount }) => {
-    (items[category] ??= []).push({ id, name, amount });
+  const items: Record<string, PackedItemUiDTO[]> = {};
+  activity.packedItems.forEach((packedItem) => {
+    const categoryId = packedItem.ofItem.categoryUiDTO.id;
+    (items[categoryId] ??= []).push(packedItem);
   });
   return { name: activity.name, items };
 };
@@ -31,18 +26,12 @@ export const toActivity = (
 ): ActivityUiDTO => ({
   id,
   name: values.name,
-  packedItems: Object.entries(values.items ?? {}).flatMap(([category, rows]) =>
-    (rows ?? []).map((row) => ({ ...row, category })),
-  ),
+  packedItems: Object.values(values.items).flatMap((rows) => rows ?? []),
 });
 
-/** Default categories first, all others alphabetically. */
-export const mergeCategories = (...sources: string[][]): string[] => {
-  const others = new Set(
-    sources.flat().filter((category) => !DEFAULT_CATEGORIES.includes(category)),
-  );
-  return [
-    ...DEFAULT_CATEGORIES,
-    ...[...others].sort((a, b) => a.localeCompare(b)),
-  ];
-};
+/** New items have no ids yet, they are assigned by the backend. */
+export const newPackedItem = (category: CategoryUiDTO) =>
+  ({
+    amount: 1,
+    ofItem: { name: "", categoryUiDTO: category },
+  }) as PackedItemUiDTO;

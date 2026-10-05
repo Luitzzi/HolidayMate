@@ -1,6 +1,6 @@
 package de.luisgerlinger.backend.boundary.uidto;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CategoryUiDTO {
 
+    @Nullable
     private UUID id;
 
     private String name;

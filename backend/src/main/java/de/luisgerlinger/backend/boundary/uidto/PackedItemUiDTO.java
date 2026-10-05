@@ -15,12 +15,13 @@ import java.util.UUID;
 @NoArgsConstructor
 public class PackedItemUiDTO {
 
+    @Nullable
     private UUID id;
-
-    private String name;
-
-    private String category;
 
     @Positive
     private int amount;
+
+    private PackingConditionUiDTO packingCondition;
+
+    private ItemUiDTO ofItem;
 }

@@ -28,10 +28,11 @@ public class ActivityUiController {
 
     @GetMapping
     @Operation(summary = "Get all activities, ordered by name")
+    @ApiResponse(responseCode = "200", description = "Activity found")
+    @ApiResponse(responseCode = "404", description = "Activity not found")
     public List<ActivityUiDTO> getAll() {
         return activityBA.getAll();
     }
-
 
     @GetMapping("/{id}")
     @Operation(summary = "Get an activity by id")
@@ -45,9 +46,9 @@ public class ActivityUiController {
 
     @PostMapping
     @Operation(summary = "Create an activity")
-    @ApiResponse(responseCode = "201", description = "Activity created")
+    @ApiResponse(responseCode = "201", description = "Create successful")
     @ApiResponse(responseCode = "400", description = "Invalid request body")
-    public ResponseEntity<ActivityUiDTO> create(@RequestParam ActivityUiDTO activity) {
+    public ResponseEntity<ActivityUiDTO> create(@RequestBody ActivityUiDTO activity) {
         ActivityUiDTO created = activityBA.create(activity);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -63,12 +64,11 @@ public class ActivityUiController {
     @ApiResponse(responseCode = "404", description = "Activity not found")
     public ResponseEntity<ActivityUiDTO> update(
             @PathVariable UUID id,
-            @RequestParam ActivityUiDTO activity
+            @RequestBody ActivityUiDTO activity
     ) {
         ActivityUiDTO updated = activityBA.update(id, activity);
         if (updated == null)
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok(updated);
     }
-
 }

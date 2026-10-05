@@ -3,6 +3,7 @@ package de.luisgerlinger.backend.service.mapper;
 import de.luisgerlinger.backend.boundary.uidto.ActivityUiDTO;
 import de.luisgerlinger.backend.entity.ActivityBE;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 

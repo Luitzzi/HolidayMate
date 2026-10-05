@@ -1,16 +1,32 @@
 import type { ActivityUiDTO } from "../generated/interface-api.ts";
-import { request } from "./apiClient.ts";
+import { buildURL } from "./utils/urlBuilder.ts";
+import { get, post, put } from "./utils/fetch.ts";
+
+const basePath = "activities";
+
+const getAllActivities = () => {
+  const requestUrl = buildURL(basePath);
+  return get<ActivityUiDTO[]>(requestUrl.toString());
+};
+
+const getActivity = (id: string) => {
+  const requestUrl = buildURL(`${basePath}/${id}`);
+  return get<ActivityUiDTO>(requestUrl.toString());
+};
+
+const createActivity = (activity: ActivityUiDTO) => {
+  const requestUrl = buildURL(basePath);
+  return post<ActivityUiDTO>(requestUrl.toString(), activity);
+};
+
+const updateActivity = (id: string, activity: ActivityUiDTO) => {
+  const requestUrl = buildURL(`${basePath}/${id}`);
+  return put<ActivityUiDTO>(requestUrl.toString(), activity);
+};
 
 export const activityApi = {
-  getAll: () => request<ActivityUiDTO[]>("/activities"),
-  create: (activity: ActivityUiDTO) =>
-    request<ActivityUiDTO>("/activities", {
-      method: "POST",
-      body: JSON.stringify(activity),
-    }),
-  update: (id: string, activity: ActivityUiDTO) =>
-    request<ActivityUiDTO>(`/activities/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(activity),
-    }),
-};
+  getAllActivities,
+  getActivity,
+  createActivity,
+  updateActivity,
+} as const;

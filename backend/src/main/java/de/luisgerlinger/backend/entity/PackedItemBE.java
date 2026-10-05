@@ -1,5 +1,6 @@
 package de.luisgerlinger.backend.entity;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,6 +19,7 @@ public class PackedItemBE {
     @Id
     @GeneratedValue
     @EqualsAndHashCode.Include
+    @Nullable
     private UUID id;
 
     private int amount;
@@ -30,6 +32,6 @@ public class PackedItemBE {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "item_id")
-    private ItemBE item;
+    private ItemBE ofItem;
 
 }

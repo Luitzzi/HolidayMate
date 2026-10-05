@@ -1,6 +1,8 @@
 package de.luisgerlinger.backend.entity;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Null;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +18,7 @@ public class CategoryBE {
 
     @Id
     @GeneratedValue
+    @Nullable
     private UUID id;
 
     @Column(nullable = false, unique = true)

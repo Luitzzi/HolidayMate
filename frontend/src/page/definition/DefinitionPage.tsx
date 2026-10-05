@@ -1,3 +1,5 @@
+/*
+
 import { PlusOutlined } from "@ant-design/icons";
 import {
   App,
@@ -7,62 +9,44 @@ import {
   Form,
   Input,
   Select,
+  Spin,
   Typography,
 } from "antd";
 import { useEffect, useState } from "react";
-import { activityApi, categoryApi } from "../../api/apiClient.ts";
-import type { ActivityUiDTO } from "../../generated/interface-api.ts";
+import type {
+  ActivityUiDTO,
+  CategoryUiDTO,
+} from "../../generated/interface-api.ts";
 import {
   type DefinitionFormValues,
   EMPTY_FORM_VALUES,
-  DEFAULT_CATEGORIES,
-  mergeCategories,
   toActivity,
   toFormValues,
 } from "./definitionForm.ts";
 import { SectionHeader } from "../../components/SectionHeader.tsx";
 import { PackedItemCount, PackedItemList } from "./PackedItemList.tsx";
 import { tokens } from "../../theme/tokens.ts";
+import { activityApi } from "../../api/activityApi.ts";
+import { categoryApi } from "../../api/categoryApi.ts";
+import { getApiFetchErrorMessage } from "../../api/utils/fetch.ts";
+
 
 export const DefinitionPage = () => {
   const { message } = App.useApp();
   const [form] = Form.useForm<DefinitionFormValues>();
 
-  const [activities, setActivities] = useState<ActivityUiDTO[]>([]);
-  const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
-  const [selectedId, setSelectedId] = useState<string>();
-  const [openCategories, setOpenCategories] = useState<string[]>([
-    DEFAULT_CATEGORIES[0],
-  ]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    Promise.all([activityApi.getAll(), categoryApi.getAll()])
-      .then(([loadedActivities, loadedCategories]) => {
-        setActivities(loadedActivities);
-        setCategories(
-          mergeCategories(loadedCategories.map((category) => category.name)),
-        );
-      })
-      .catch((error: Error) =>
-        message.error(`Could not load activities: ${error.message}`),
-      )
-      .finally(() => setLoading(false));
-  }, [message]);
+
+  const [selectedActivityId, setSelectedActivityId] = useState<string>();
+  const [openCategoryIds, setOpenCategoryIds] = useState<string[]>([]);
+  const [saving, setSaving] = useState<boolean>(false);
 
   const showActivity = (activity?: ActivityUiDTO) => {
-    setSelectedId(activity?.id);
+    setSelectedActivityId(activity?.id);
     form.resetFields();
-    form.setFieldsValue(activity ? toFormValues(activity) : EMPTY_FORM_VALUES);
-    if (activity) {
-      setCategories((current) =>
-        mergeCategories(
-          current,
-          activity.packedItems.map((item) => item.category),
-        ),
-      );
-    }
+    const values = activity ? toFormValues(activity) : EMPTY_FORM_VALUES;
+    form.setFieldsValue(values);
+    setOpenCategoryIds(Object.keys(values.items));
   };
 
   const save = async () => {
@@ -75,7 +59,7 @@ export const DefinitionPage = () => {
       const invalidCategories = errorFields
         .filter(({ name }) => name[0] === "items")
         .map(({ name }) => String(name[1]));
-      setOpenCategories((current) => [
+      setOpenCategoryIds((current) => [
         ...new Set([...current, ...invalidCategories]),
       ]);
       return;
@@ -83,11 +67,14 @@ export const DefinitionPage = () => {
 
     setSaving(true);
     try {
-      const activity = toActivity(form.getFieldsValue(true), selectedId);
-      const saved = selectedId
-        ? await activityApi.update(selectedId, activity)
-        : await activityApi.create(activity);
-      setActivities((current) =>
+      const activity = toActivity(
+        form.getFieldsValue(true),
+        selectedActivityId,
+      );
+      const saved = selectedActivityId
+        ? await activityApi.updateActivity(selectedActivityId, activity)
+        : await activityApi.createActivity(activity);
+      setActivities((current = []) =>
         [...current.filter(({ id }) => id !== saved.id), saved].sort((a, b) =>
           a.name.localeCompare(b.name),
         ),
@@ -114,14 +101,16 @@ export const DefinitionPage = () => {
       >
         <Select
           placeholder="Select an activity to edit"
-          loading={loading}
-          value={selectedId}
-          options={activities.map(({ id, name }) => ({
+          loading={activitiesLoading}
+          value={selectedActivityId}
+          options={(activities ?? []).map(({ id, name }) => ({
             value: id,
             label: name,
           }))}
-          onChange={(id: string) =>
-            showActivity(activities.find((activity) => activity.id === id))
+          onChange={(id) =>
+            showActivity(
+              (activities ?? []).find((activity) => activity.id === id),
+            )
           }
           style={{ flex: 1 }}
         />
@@ -137,48 +126,46 @@ export const DefinitionPage = () => {
         requiredMark={false}
         style={{ flex: 1 }}
       >
-        <Form.Item
-          name="name"
-          label="Activity name"
-          rules={[
-            { required: true, whitespace: true, message: "Enter a name" },
-          ]}
-        >
-          <Input size="large" placeholder="Camping trip" />
-        </Form.Item>
 
-        <Flex vertical gap={tokens.gap.large}>
-          {categories.map((category) => (
-            <Collapse
-              key={category}
-              size="large"
-              activeKey={openCategories.includes(category) ? [category] : []}
-              onChange={(keys) =>
-                setOpenCategories((current) =>
-                  keys.length > 0
-                    ? [...current, category]
-                    : current.filter((open) => open !== category),
-                )
-              }
-              items={[
-                {
-                  key: category,
-                  label: (
-                    <Typography.Text
-                      strong
-                      style={{ fontSize: tokens.fontSize.large }}
-                    >
-                      {category}
-                    </Typography.Text>
-                  ),
-                  extra: <PackedItemCount category={category} />,
-                  forceRender: true,
-                  children: <PackedItemList category={category} />,
-                },
-              ]}
-            />
-          ))}
-        </Flex>
+
+        {categoriesLoading ? (
+          <Spin />
+        ) : (
+          <Flex vertical gap={tokens.gap.large}>
+            {(categories ?? []).map((category) => (
+              <Collapse
+                key={category.id}
+                size="large"
+                activeKey={
+                  openCategoryIds.includes(category.id) ? [category.id] : []
+                }
+                onChange={(keys) =>
+                  setOpenCategoryIds((current) =>
+                    keys.length > 0
+                      ? [...current, category.id]
+                      : current.filter((id) => id !== category.id),
+                  )
+                }
+                items={[
+                  {
+                    key: category.id,
+                    label: (
+                      <Typography.Text
+                        strong
+                        style={{ fontSize: tokens.fontSize.large }}
+                      >
+                        {category.name}
+                      </Typography.Text>
+                    ),
+                    extra: <PackedItemCount category={category} />,
+                    forceRender: true,
+                    children: <PackedItemList category={category} />,
+                  },
+                ]}
+              />
+            ))}
+          </Flex>
+        )}
       </Form>
 
       <div
@@ -203,3 +190,6 @@ export const DefinitionPage = () => {
     </Flex>
   );
 };
+
+
+ */
