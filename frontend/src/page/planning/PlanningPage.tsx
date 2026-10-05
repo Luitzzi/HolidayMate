@@ -31,7 +31,7 @@ export const PlanningPage = () => {
 
   useEffect(() => {
     activityApi
-      .getAll()
+      .getAllActivities()
       .then(setActivities)
       .catch((error: Error) =>
         message.error(`Could not load activities: ${error.message}`),

@@ -19,6 +19,7 @@ public class ItemUiDTO {
 
     private CategoryUiDTO categoryUiDTO;
 
+    @Nullable
     private PackingConditionUiDTO itemCondition;
 
 }

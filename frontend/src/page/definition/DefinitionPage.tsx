@@ -1,90 +1,147 @@
-/*
-
-import { PlusOutlined } from "@ant-design/icons";
-import {
-  App,
-  Button,
-  Collapse,
-  Flex,
-  Form,
-  Input,
-  Select,
-  Spin,
-  Typography,
-} from "antd";
 import { useEffect, useState } from "react";
 import type {
   ActivityUiDTO,
   CategoryUiDTO,
+  PackedItemUiDTO,
 } from "../../generated/interface-api.ts";
-import {
-  type DefinitionFormValues,
-  EMPTY_FORM_VALUES,
-  toActivity,
-  toFormValues,
-} from "./definitionForm.ts";
-import { SectionHeader } from "../../components/SectionHeader.tsx";
-import { PackedItemCount, PackedItemList } from "./PackedItemList.tsx";
-import { tokens } from "../../theme/tokens.ts";
 import { activityApi } from "../../api/activityApi.ts";
-import { categoryApi } from "../../api/categoryApi.ts";
 import { getApiFetchErrorMessage } from "../../api/utils/fetch.ts";
+import { categoryApi } from "../../api/categoryApi.ts";
+import { App, Button, Flex, Form, Select, Spin } from "antd";
+import { SectionHeader } from "../../components/SectionHeader.tsx";
+import { tokens } from "../../theme/tokens.ts";
+import { PlusOutlined } from "@ant-design/icons";
+import {
+  type SelectOption,
+  toSelectOption,
+  toSelectOptions,
+} from "../../components/SelectOption.ts";
+import {
+  toActivityUiDTO,
+  toDefinitionFormValues,
+} from "./utils/activityDefinitonFormUtils.ts";
+import { ActivityDefinitionForm } from "./components/ActivityDefinitionForm.tsx";
 
+export type DefinitionFormValues = {
+  activityName: string;
+  categoryGroups: CategoryGroup[];
+};
+
+export type CategoryGroup = {
+  categoryName?: string;
+  packedItems: PackedItemUiDTO[];
+};
 
 export const DefinitionPage = () => {
   const { message } = App.useApp();
   const [form] = Form.useForm<DefinitionFormValues>();
 
+  const [activities, setActivities] = useState<ActivityUiDTO[]>([]);
+  const [activityOptions, setActivityOptions] = useState<
+    SelectOption<string>[]
+  >([]);
+  const [activitiesLoading, setActivitiesLoading] = useState<boolean>(true);
+  useEffect(() => {
+    activityApi
+      .getAllActivities()
+      .then((result) => {
+        setActivities(result);
+        setActivityOptions(
+          toSelectOptions(
+            result,
+            (activity) => activity.id as string,
+            (activity) => activity.name,
+          ),
+        );
+      })
+      .catch((err: Error) =>
+        message.error(getApiFetchErrorMessage("activities", err.message)),
+      )
+      .finally(() => setActivitiesLoading(false));
+  }, [message]);
+  const [selectedActivityId, setSelectedActivityId] = useState<string | null>(
+    null,
+  );
 
+  const [categories, setCategories] = useState<CategoryUiDTO[]>([]);
+  const [categorySelectOptions, setCategorySelectOptions] = useState<
+    SelectOption<string>[]
+  >([]);
+  const [categoriesLoading, setCategoriesLoading] = useState<boolean>(true);
+  useEffect(() => {
+    setCategoriesLoading(true);
+    categoryApi
+      .getAllCategories()
+      .then((result) => {
+        setCategories(result);
+        setCategorySelectOptions(
+          toSelectOptions(
+            result,
+            (category) => category.name,
+            (category) => category.name,
+          ),
+        );
+      })
+      .catch((err: Error) =>
+        message.error(getApiFetchErrorMessage("categories", err.message)),
+      )
+      .finally(() => setCategoriesLoading(false));
+  }, [message]);
 
-  const [selectedActivityId, setSelectedActivityId] = useState<string>();
-  const [openCategoryIds, setOpenCategoryIds] = useState<string[]>([]);
-  const [saving, setSaving] = useState<boolean>(false);
-
-  const showActivity = (activity?: ActivityUiDTO) => {
-    setSelectedActivityId(activity?.id);
-    form.resetFields();
-    const values = activity ? toFormValues(activity) : EMPTY_FORM_VALUES;
-    form.setFieldsValue(values);
-    setOpenCategoryIds(Object.keys(values.items));
+  const isCategoryNameValid = (name: string) => {
+    return (
+      !categories.some(
+        (category) => category.name.toLowerCase() === name.toLowerCase(),
+      ) && name !== ""
+    );
+  };
+  const addCategory = (category: CategoryUiDTO) => {
+    setCategories((prev) => [...prev, category]);
+    const categoryOption = toSelectOption(
+      category,
+      (category) => category.name,
+      (category) => category.name,
+    );
+    setCategorySelectOptions((prev) => [...prev, categoryOption]);
   };
 
-  const save = async () => {
+  const showActivity = (activityId?: string) => {
+    form.resetFields();
+    if (activityId) {
+      setSelectedActivityId(activityId);
+      const activity = activities.find(
+        (activity) => activity.id === activityId,
+      );
+      if (activity !== undefined) {
+        const fieldValues = toDefinitionFormValues(activity);
+        form.setFieldsValue(fieldValues);
+      } else {
+        message.error("Could not find the selectedActivity");
+      }
+    }
+  };
+
+  const [saving, setSaving] = useState<boolean>(false);
+  const onSaved = () => {
+    setSaving(false);
+    message.success("Activity was saved");
+  };
+  const saveActivity = async () => {
     try {
       await form.validateFields({ recursive: true });
-    } catch (error) {
-      const { errorFields = [] } = error as {
-        errorFields?: { name: (string | number)[] }[];
-      };
-      const invalidCategories = errorFields
-        .filter(({ name }) => name[0] === "items")
-        .map(({ name }) => String(name[1]));
-      setOpenCategoryIds((current) => [
-        ...new Set([...current, ...invalidCategories]),
-      ]);
+    } catch {
+      message.error("Please fill out all input fields");
       return;
     }
-
+    const formValues: DefinitionFormValues = form.getFieldsValue(true);
+    const activity: ActivityUiDTO = toActivityUiDTO(formValues);
     setSaving(true);
-    try {
-      const activity = toActivity(
-        form.getFieldsValue(true),
-        selectedActivityId,
-      );
-      const saved = selectedActivityId
-        ? await activityApi.updateActivity(selectedActivityId, activity)
-        : await activityApi.createActivity(activity);
-      setActivities((current = []) =>
-        [...current.filter(({ id }) => id !== saved.id), saved].sort((a, b) =>
-          a.name.localeCompare(b.name),
-        ),
-      );
-      showActivity(saved);
-      message.success(`Saved "${saved.name}"`);
-    } catch (error) {
-      message.error(`Could not save activity: ${(error as Error).message}`);
-    } finally {
-      setSaving(false);
+    if (selectedActivityId) {
+      activityApi
+        .updateActivity(selectedActivityId, activity)
+        .finally(() => onSaved());
+    } else {
+      activityApi.createActivity(activity).finally(() => onSaved());
     }
   };
 
@@ -103,15 +160,8 @@ export const DefinitionPage = () => {
           placeholder="Select an activity to edit"
           loading={activitiesLoading}
           value={selectedActivityId}
-          options={(activities ?? []).map(({ id, name }) => ({
-            value: id,
-            label: name,
-          }))}
-          onChange={(id) =>
-            showActivity(
-              (activities ?? []).find((activity) => activity.id === id),
-            )
-          }
+          options={activityOptions}
+          onChange={(id) => showActivity(id)}
           style={{ flex: 1 }}
         />
         <Button icon={<PlusOutlined />} onClick={() => showActivity()}>
@@ -119,61 +169,23 @@ export const DefinitionPage = () => {
         </Button>
       </Flex>
 
-      <Form
-        form={form}
-        layout="vertical"
-        initialValues={EMPTY_FORM_VALUES}
-        requiredMark={false}
-        style={{ flex: 1 }}
-      >
-
-
-        {categoriesLoading ? (
-          <Spin />
-        ) : (
-          <Flex vertical gap={tokens.gap.large}>
-            {(categories ?? []).map((category) => (
-              <Collapse
-                key={category.id}
-                size="large"
-                activeKey={
-                  openCategoryIds.includes(category.id) ? [category.id] : []
-                }
-                onChange={(keys) =>
-                  setOpenCategoryIds((current) =>
-                    keys.length > 0
-                      ? [...current, category.id]
-                      : current.filter((id) => id !== category.id),
-                  )
-                }
-                items={[
-                  {
-                    key: category.id,
-                    label: (
-                      <Typography.Text
-                        strong
-                        style={{ fontSize: tokens.fontSize.large }}
-                      >
-                        {category.name}
-                      </Typography.Text>
-                    ),
-                    extra: <PackedItemCount category={category} />,
-                    forceRender: true,
-                    children: <PackedItemList category={category} />,
-                  },
-                ]}
-              />
-            ))}
-          </Flex>
-        )}
-      </Form>
+      {categoriesLoading ? (
+        <Spin />
+      ) : (
+        <ActivityDefinitionForm
+          form={form}
+          categorySelectOptions={categorySelectOptions}
+          addCategory={addCategory}
+          isCategoryNameValid={isCategoryNameValid}
+        />
+      )}
 
       <div
         style={{
           position: "sticky",
           bottom: 0,
           marginTop: tokens.margin.large,
-          padding: `${tokens.padding.medium}px 0`,
+          padding: `${tokens.padding.medium} 0`,
           background: tokens.color.background.container,
         }}
       >
@@ -182,7 +194,8 @@ export const DefinitionPage = () => {
           size="large"
           block
           loading={saving}
-          onClick={save}
+          onClick={saveActivity}
+          style={{ marginBottom: tokens.margin.small }}
         >
           Save activity
         </Button>
@@ -190,6 +203,3 @@ export const DefinitionPage = () => {
     </Flex>
   );
 };
-
-
- */

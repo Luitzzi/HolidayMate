@@ -1,25 +1,39 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { Badge, Button, Flex, Form, Input, InputNumber } from "antd";
-import { tokens } from "../../theme/tokens.ts";
+import { Button, Flex, Form, Input, InputNumber } from "antd";
+import { tokens } from "../../../theme/tokens.ts";
+import { EMPTY_PACKED_ITEM_VALUES } from "../utils/activityDefinitonFormUtils.ts";
+import type { CategoryGroup } from "../DefinitionPage.tsx";
 import type {
-  CategoryUiDTO,
+  ItemUiDTO,
   PackedItemUiDTO,
-} from "../../generated/interface-api.ts";
-import { newPackedItem } from "./definitionForm.ts";
+} from "../../../generated/interface-api.ts";
 
-type Props = {
-  category: CategoryUiDTO;
+type PackedItemListProps = {
+  // Index of the category card in the "categories" Form.List
+  categoryItemIndex: number;
 };
 
-export const PackedItemList = ({ category }: Props) => {
+export const PackedItemList = ({ categoryItemIndex }: PackedItemListProps) => {
+  const form = Form.useFormInstance();
+  const categoryName = Form.useWatch<string | undefined>(
+    ["categories", categoryItemIndex, "categoryName"],
+    form,
+  );
+
   return (
-    <Form.List name={["items", category.id as string]}>
+    <Form.List
+      name={[categoryItemIndex, "packedItems" satisfies keyof CategoryGroup]}
+    >
       {(fields, { add, remove }) => (
         <Flex vertical gap={tokens.gap.small}>
           {fields.map(({ key, name }) => (
             <Flex key={key} gap={tokens.gap.small} align="start">
               <Form.Item
-                name={[name, "ofItem", "name"]}
+                name={[
+                  name,
+                  "ofItem" satisfies keyof PackedItemUiDTO,
+                  "name" satisfies keyof ItemUiDTO,
+                ]}
                 rules={[
                   {
                     required: true,
@@ -31,8 +45,9 @@ export const PackedItemList = ({ category }: Props) => {
               >
                 <Input size="large" placeholder="Item" />
               </Form.Item>
+
               <Form.Item
-                name={[name, "amount"]}
+                name={[name, "amount" satisfies keyof PackedItemUiDTO]}
                 rules={[{ required: true, message: "Enter an amount" }]}
                 style={{ marginBottom: 0 }}
               >
@@ -44,6 +59,7 @@ export const PackedItemList = ({ category }: Props) => {
                   style={{ width: tokens.controlHeight.large * 2 }}
                 />
               </Form.Item>
+
               <Button
                 type="text"
                 size="large"
@@ -53,39 +69,20 @@ export const PackedItemList = ({ category }: Props) => {
               />
             </Flex>
           ))}
-          <Button
-            type="dashed"
-            size="large"
-            block
-            icon={<PlusOutlined />}
-            onClick={() => add(newPackedItem(category))}
-          >
-            Add item
-          </Button>
+
+          {categoryName && (
+            <Button
+              type="dashed"
+              size="large"
+              block
+              icon={<PlusOutlined />}
+              onClick={() => add(EMPTY_PACKED_ITEM_VALUES)}
+            >
+              Add item
+            </Button>
+          )}
         </Flex>
       )}
     </Form.List>
-  );
-};
-
-export const PackedItemCount = ({ category }: Props) => {
-  const form = Form.useFormInstance();
-  const rows = Form.useWatch<PackedItemUiDTO[] | undefined>(
-    ["items", category.id],
-    form,
-  );
-  const count = rows?.length ?? 0;
-
-  return (
-    <Badge
-      count={count}
-      showZero
-      color={count > 0 ? tokens.color.primary : tokens.color.fill}
-      styles={
-        count > 0
-          ? undefined
-          : { indicator: { color: tokens.color.text.disabled } }
-      }
-    />
   );
 };
