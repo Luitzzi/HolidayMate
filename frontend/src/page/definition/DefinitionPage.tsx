@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import type {
   ActivityUiDTO,
   CategoryUiDTO,
-  PackedItemUiDTO,
 } from "../../generated/interface-api.ts";
 import { activityApi } from "../../api/activityApi.ts";
 import { getApiFetchErrorMessage } from "../../api/utils/fetch.ts";
@@ -17,20 +16,11 @@ import {
   toSelectOptions,
 } from "../../components/SelectOption.ts";
 import {
+  type DefinitionFormValues,
   toActivityUiDTO,
   toDefinitionFormValues,
 } from "./utils/activityDefinitonFormUtils.ts";
 import { ActivityDefinitionForm } from "./components/ActivityDefinitionForm.tsx";
-
-export type DefinitionFormValues = {
-  activityName: string;
-  categoryGroups: CategoryGroup[];
-};
-
-export type CategoryGroup = {
-  categoryName?: string;
-  packedItems: PackedItemUiDTO[];
-};
 
 export const DefinitionPage = () => {
   const { message } = App.useApp();

@@ -2,12 +2,13 @@ import type {
   ActivityUiDTO,
   PackedItemUiDTO,
 } from "../../../generated/interface-api.ts";
-import type {
-  CategoryGroup,
-  DefinitionFormValues,
-} from "../DefinitionPage.tsx";
+import type {} from "../DefinitionPage.tsx";
 
-/** Field names of the form values, checked against their types */
+export type DefinitionFormValues = {
+  activityName: string;
+  categoryGroups: CategoryGroup[];
+};
+
 export const DEFINITION_FORM_FIELDS = {
   activityName: "activityName",
   categoryGroups: "categoryGroups",
@@ -15,6 +16,11 @@ export const DEFINITION_FORM_FIELDS = {
   keyof DefinitionFormValues,
   keyof DefinitionFormValues
 >;
+
+export type CategoryGroup = {
+  categoryName?: string;
+  packedItems: PackedItemUiDTO[];
+};
 
 export const CATEGORY_GROUP_FIELDS = {
   categoryName: "categoryName",

@@ -1,29 +1,34 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Flex, Form, Input, InputNumber } from "antd";
 import { tokens } from "../../../theme/tokens.ts";
-import { EMPTY_PACKED_ITEM_VALUES } from "../utils/activityDefinitonFormUtils.ts";
-import type { CategoryGroup } from "../DefinitionPage.tsx";
+import {
+  CATEGORY_GROUP_FIELDS,
+  DEFINITION_FORM_FIELDS,
+  EMPTY_PACKED_ITEM_VALUES,
+} from "../utils/activityDefinitonFormUtils.ts";
 import type {
   ItemUiDTO,
   PackedItemUiDTO,
 } from "../../../generated/interface-api.ts";
 
 type PackedItemListProps = {
-  // Index of the category card in the "categories" Form.List
+  // Index of the category card in the "categoryGroups" Form.List
   categoryItemIndex: number;
 };
 
 export const PackedItemList = ({ categoryItemIndex }: PackedItemListProps) => {
   const form = Form.useFormInstance();
   const categoryName = Form.useWatch<string | undefined>(
-    ["categories", categoryItemIndex, "categoryName"],
+    [
+      DEFINITION_FORM_FIELDS.categoryGroups,
+      categoryItemIndex,
+      CATEGORY_GROUP_FIELDS.categoryName,
+    ],
     form,
   );
 
   return (
-    <Form.List
-      name={[categoryItemIndex, "packedItems" satisfies keyof CategoryGroup]}
-    >
+    <Form.List name={[categoryItemIndex, CATEGORY_GROUP_FIELDS.packedItems]}>
       {(fields, { add, remove }) => (
         <Flex vertical gap={tokens.gap.small}>
           {fields.map(({ key, name }) => (

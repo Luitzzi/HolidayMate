@@ -4,15 +4,14 @@ import { tokens } from "../../../theme/tokens.ts";
 import { CategorySelect } from "./CategorySelect.tsx";
 import { PackedItemList } from "./PackedItemList.tsx";
 import {
+  CATEGORY_GROUP_FIELDS,
+  DEFINITION_FORM_FIELDS,
   EMPTY_CATEGORY_GROUP,
   EMPTY_FORM_VALUES,
 } from "../utils/activityDefinitonFormUtils.ts";
 import type { SelectOption } from "../../../components/SelectOption.ts";
 import type { CategoryUiDTO } from "../../../generated/interface-api.ts";
-import type {
-  CategoryGroup,
-  DefinitionFormValues,
-} from "../DefinitionPage.tsx";
+import type { DefinitionFormValues } from "../DefinitionPage.tsx";
 
 export type ActivityDefinitionFormProps = {
   form: FormInstance<DefinitionFormValues>;
@@ -27,9 +26,14 @@ export const ActivityDefinitionForm = ({
   addCategory,
   isCategoryNameValid,
 }: ActivityDefinitionFormProps) => {
-  const categoryGroups = Form.useWatch("categories", form);
+  const categoryGroups = Form.useWatch(
+    DEFINITION_FORM_FIELDS.categoryGroups,
+    form,
+  );
   const hasCategory = (categoryIndex: number) => {
-    return categoryGroups?.[categoryIndex]?.;
+    return Boolean(
+      categoryGroups?.[categoryIndex]?.[CATEGORY_GROUP_FIELDS.categoryName],
+    );
   };
 
   return (
@@ -41,14 +45,14 @@ export const ActivityDefinitionForm = ({
       style={{ flex: 1 }}
     >
       <Form.Item
-        name={"activityName" satisfies keyof DefinitionFormValues}
+        name={DEFINITION_FORM_FIELDS.activityName}
         label={"Activity name"}
         rules={[{ required: true, whitespace: true, message: "Enter a name" }]}
       >
         <Input size="large" placeholder="Camping trip" />
       </Form.Item>
 
-      <Form.List name={"categoryGroups" satisfies keyof DefinitionFormValues}>
+      <Form.List name={DEFINITION_FORM_FIELDS.categoryGroups}>
         {(fields, { add, remove }) => (
           <Flex vertical gap={tokens.gap.large}>
             {fields.map((field, index) => (
@@ -66,7 +70,7 @@ export const ActivityDefinitionForm = ({
                           <Form.Item
                             name={[
                               field.name,
-                              "categoryName" satisfies keyof CategoryGroup,
+                              CATEGORY_GROUP_FIELDS.categoryName,
                             ]}
                             rules={[
                               {
