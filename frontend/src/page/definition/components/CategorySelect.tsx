@@ -64,6 +64,7 @@ export const CategorySelect = ({
               <Divider style={{ margin: `${tokens.margin.small} 0` }} />
               <Button
                 type="text"
+                disabled={!isCategoryNameValid(newName)}
                 block
                 icon={<PlusOutlined />}
                 onClick={addCategory}

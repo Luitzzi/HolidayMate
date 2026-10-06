@@ -53,7 +53,8 @@ export const DefinitionPage = () => {
     null,
   );
 
-  const [categories, setCategories] = useState<CategoryUiDTO[]>([]);
+  const [categoriesByName, setCategoriesByName] =
+    useState<Map<string, CategoryUiDTO>>();
   const [categorySelectOptions, setCategorySelectOptions] = useState<
     SelectOption<string>[]
   >([]);
@@ -63,7 +64,10 @@ export const DefinitionPage = () => {
     categoryApi
       .getAllCategories()
       .then((result) => {
-        setCategories(result);
+        const categoriesByName = new Map(
+          result.map((result) => [result.name.toLowerCase(), result]),
+        );
+        setCategoriesByName(categoriesByName);
         setCategorySelectOptions(
           toSelectOptions(
             result,
@@ -79,14 +83,13 @@ export const DefinitionPage = () => {
   }, [message]);
 
   const isCategoryNameValid = (name: string) => {
-    return (
-      !categories.some(
-        (category) => category.name.toLowerCase() === name.toLowerCase(),
-      ) && name !== ""
-    );
+    return name !== "" && !categoriesByName?.has(name.toLowerCase());
   };
+
   const addCategory = (category: CategoryUiDTO) => {
-    setCategories((prev) => [...prev, category]);
+    setCategoriesByName((prev) =>
+      prev?.set(category.name.toLowerCase(), category),
+    );
     const categoryOption = toSelectOption(
       category,
       (category) => category.name,
