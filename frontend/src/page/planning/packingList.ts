@@ -18,7 +18,7 @@ export const buildPackingList = (
   activities
     .flatMap((activity) => activity.packedItems)
     .forEach(({ ofItem, amount }) => {
-      const category = ofItem.categoryUiDTO.name;
+      const category = ofItem.category.name;
       const name = ofItem.name;
       const key = `${category}/${name}`.toLowerCase();
       const existing = entries.get(key);

@@ -2,21 +2,26 @@ import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Flex, Form, Input, InputNumber } from "antd";
 import { tokens } from "../../../theme/tokens.ts";
 import {
+  buildEmptyPackedItem,
   CATEGORY_GROUP_FIELDS,
   DEFINITION_FORM_FIELDS,
-  EMPTY_PACKED_ITEM_VALUES,
 } from "../utils/activityDefinitonFormUtils.ts";
 import type {
+  CategoryUiDTO,
   ItemUiDTO,
   PackedItemUiDTO,
 } from "../../../generated/interface-api.ts";
 
 type PackedItemListProps = {
+  categoriesByName: Map<string, CategoryUiDTO>;
   // Index of the category card in the "categoryGroups" Form.List
   categoryItemIndex: number;
 };
 
-export const PackedItemList = ({ categoryItemIndex }: PackedItemListProps) => {
+export const PackedItemList = ({
+  categoriesByName,
+  categoryItemIndex,
+}: PackedItemListProps) => {
   const form = Form.useFormInstance();
   const categoryName = Form.useWatch<string | undefined>(
     [
@@ -26,6 +31,14 @@ export const PackedItemList = ({ categoryItemIndex }: PackedItemListProps) => {
     ],
     form,
   );
+
+  const getEmptyPackedItem = (): PackedItemUiDTO => {
+    if (categoryName === undefined)
+      throw Error("Item creation is only allowed when a category name exists");
+
+    const maybeCategory = categoriesByName.get(categoryName.toLowerCase());
+    return buildEmptyPackedItem(categoryName, maybeCategory);
+  };
 
   return (
     <Form.List name={[categoryItemIndex, CATEGORY_GROUP_FIELDS.packedItems]}>
@@ -81,7 +94,7 @@ export const PackedItemList = ({ categoryItemIndex }: PackedItemListProps) => {
               size="large"
               block
               icon={<PlusOutlined />}
-              onClick={() => add(EMPTY_PACKED_ITEM_VALUES)}
+              onClick={() => add(getEmptyPackedItem())}
             >
               Add item
             </Button>

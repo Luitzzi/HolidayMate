@@ -4,7 +4,10 @@ import type {
   CategoryUiDTO,
 } from "../../generated/interface-api.ts";
 import { activityApi } from "../../api/activityApi.ts";
-import { getApiFetchErrorMessage } from "../../api/utils/fetch.ts";
+import {
+  buildApiFetchErrorMessage,
+  buildApiPostErrorMessage,
+} from "../../api/utils/fetch.ts";
 import { categoryApi } from "../../api/categoryApi.ts";
 import { App, Button, Flex, Form, Select, Spin } from "antd";
 import { SectionHeader } from "../../components/SectionHeader.tsx";
@@ -45,7 +48,7 @@ export const DefinitionPage = () => {
         );
       })
       .catch((err: Error) =>
-        message.error(getApiFetchErrorMessage("activities", err.message)),
+        message.error(buildApiFetchErrorMessage("activities", err.message)),
       )
       .finally(() => setActivitiesLoading(false));
   }, [message]);
@@ -53,8 +56,9 @@ export const DefinitionPage = () => {
     null,
   );
 
-  const [categoriesByName, setCategoriesByName] =
-    useState<Map<string, CategoryUiDTO>>();
+  const [categoriesByName, setCategoriesByName] = useState<
+    Map<string, CategoryUiDTO>
+  >(new Map());
   const [categorySelectOptions, setCategorySelectOptions] = useState<
     SelectOption<string>[]
   >([]);
@@ -77,7 +81,7 @@ export const DefinitionPage = () => {
         );
       })
       .catch((err: Error) =>
-        message.error(getApiFetchErrorMessage("categories", err.message)),
+        message.error(buildApiFetchErrorMessage("categories", err.message)),
       )
       .finally(() => setCategoriesLoading(false));
   }, [message]);
@@ -115,10 +119,6 @@ export const DefinitionPage = () => {
   };
 
   const [saving, setSaving] = useState<boolean>(false);
-  const onSaved = () => {
-    setSaving(false);
-    message.success("Activity was saved");
-  };
   const saveActivity = async () => {
     try {
       await form.validateFields({ recursive: true });
@@ -129,12 +129,23 @@ export const DefinitionPage = () => {
     const formValues: DefinitionFormValues = form.getFieldsValue(true);
     const activity: ActivityUiDTO = toActivityUiDTO(formValues);
     setSaving(true);
+    const successText = "Activity was saved";
     if (selectedActivityId) {
       activityApi
         .updateActivity(selectedActivityId, activity)
-        .finally(() => onSaved());
+        .then(() => message.success(successText))
+        .catch((err: Error) =>
+          message.error(buildApiPostErrorMessage("activity", err.message)),
+        )
+        .finally(() => setSaving(false));
     } else {
-      activityApi.createActivity(activity).finally(() => onSaved());
+      activityApi
+        .createActivity(activity)
+        .then(() => message.success(successText))
+        .catch((err: Error) =>
+          message.error(buildApiPostErrorMessage("activity", err.message)),
+        )
+        .finally(() => setSaving(false));
     }
   };
 
@@ -167,6 +178,7 @@ export const DefinitionPage = () => {
       ) : (
         <ActivityDefinitionForm
           form={form}
+          categoriesByName={categoriesByName}
           categorySelectOptions={categorySelectOptions}
           addCategory={addCategory}
           isCategoryNameValid={isCategoryNameValid}

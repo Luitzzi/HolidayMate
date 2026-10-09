@@ -1,5 +1,6 @@
 import type {
   ActivityUiDTO,
+  CategoryUiDTO,
   PackedItemUiDTO,
 } from "../../../generated/interface-api.ts";
 import type {} from "../DefinitionPage.tsx";
@@ -32,19 +33,29 @@ export const EMPTY_FORM_VALUES: DefinitionFormValues = {
   activityName: "",
   categoryGroups: [EMPTY_CATEGORY_GROUP],
 };
-export const EMPTY_PACKED_ITEM_VALUES = {
-  amount: 1,
-  ofItem: {
-    name: "",
-  },
-} as PackedItemUiDTO;
+export const buildEmptyPackedItem = (
+  categoryName: string,
+  category?: CategoryUiDTO,
+): PackedItemUiDTO => {
+  return {
+    amount: 1,
+    ofItem: {
+      name: "",
+      category: category
+        ? category
+        : {
+            name: categoryName,
+          },
+    },
+  };
+};
 
 export const toDefinitionFormValues = (
   activity: ActivityUiDTO,
 ): DefinitionFormValues => {
   const categoryGroups = new Map<string, CategoryGroup>();
   activity.packedItems.forEach((packedItem) => {
-    const categoryName = packedItem.ofItem.categoryUiDTO.name;
+    const categoryName = packedItem.ofItem.category.name;
     if (categoryGroups.has(categoryName)) {
       const categoryGroup = categoryGroups.get(categoryName);
       categoryGroup!.packedItems.push(packedItem);

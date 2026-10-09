@@ -6,15 +6,16 @@ import { PackedItemList } from "./PackedItemList.tsx";
 import {
   CATEGORY_GROUP_FIELDS,
   DEFINITION_FORM_FIELDS,
+  type DefinitionFormValues,
   EMPTY_CATEGORY_GROUP,
   EMPTY_FORM_VALUES,
 } from "../utils/activityDefinitonFormUtils.ts";
 import type { SelectOption } from "../../../components/SelectOption.ts";
 import type { CategoryUiDTO } from "../../../generated/interface-api.ts";
-import type { DefinitionFormValues } from "../DefinitionPage.tsx";
 
 export type ActivityDefinitionFormProps = {
   form: FormInstance<DefinitionFormValues>;
+  categoriesByName: Map<string, CategoryUiDTO>;
   categorySelectOptions: SelectOption<string>[];
   addCategory: (category: CategoryUiDTO) => void;
   isCategoryNameValid: (name: string) => boolean;
@@ -22,6 +23,7 @@ export type ActivityDefinitionFormProps = {
 
 export const ActivityDefinitionForm = ({
   form,
+  categoriesByName,
   categorySelectOptions,
   addCategory,
   isCategoryNameValid,
@@ -103,7 +105,10 @@ export const ActivityDefinitionForm = ({
                       // Renders closed panels too, so their fields are validated
                       forceRender: true,
                       children: (
-                        <PackedItemList categoryItemIndex={field.name} />
+                        <PackedItemList
+                          categoriesByName={categoriesByName}
+                          categoryItemIndex={field.name}
+                        />
                       ),
                     },
                   ]}

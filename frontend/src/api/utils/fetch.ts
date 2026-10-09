@@ -1,8 +1,15 @@
-export const getApiFetchErrorMessage = (
+export const buildApiFetchErrorMessage = (
   entityName: string,
   message: string,
 ) => {
   return `Could not load ${entityName}: ${message}`;
+};
+
+export const buildApiPostErrorMessage = (
+  entityName: string,
+  message: string,
+) => {
+  return `Could not save ${entityName}: ${message}`;
 };
 
 const request = async <T>(url: string, init: RequestInit = {}) => {
