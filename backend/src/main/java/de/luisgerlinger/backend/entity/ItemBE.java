@@ -1,5 +1,6 @@
 package de.luisgerlinger.backend.entity;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,29 +10,25 @@ import java.util.UUID;
 
 @Entity
 @Table(name = ItemBE.tableName,
-        uniqueConstraints = @UniqueConstraint(columnNames = {"name", "category_id"}))
+        uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
 @Getter
 @Setter
 @RequiredArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ItemBE {
-    public static final String tableName = "item";
+    public static final String tableName = "items";
 
     @Id
     @GeneratedValue
-    @EqualsAndHashCode.Include
     private UUID id;
 
     @Column(nullable = false)
     private String name;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "category_id")
     private CategoryBE category;
 
+    @Nullable
     private PackingCondition itemCondition;
-
-    @OneToMany(mappedBy = "ofItem")
-    private Set<PackedItemBE> packedItems = new HashSet<>();
 
 }

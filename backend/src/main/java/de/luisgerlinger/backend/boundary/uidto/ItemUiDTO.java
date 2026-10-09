@@ -17,7 +17,7 @@ public class ItemUiDTO {
 
     private String name;
 
-    private CategoryUiDTO categoryUiDTO;
+    private CategoryUiDTO category;
 
     @Nullable
     private PackingConditionUiDTO itemCondition;
