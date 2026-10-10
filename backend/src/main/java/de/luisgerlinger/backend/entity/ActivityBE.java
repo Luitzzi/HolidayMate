@@ -1,6 +1,6 @@
 package de.luisgerlinger.backend.entity;
 
-import jakarta.annotation.Nullable;
+import de.luisgerlinger.backend.service.NameNormalizer;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,8 +10,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = ActivityBE.tableName,
-    uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
+@Table(name = ActivityBE.tableName)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,7 +21,7 @@ public class ActivityBE {
 
     public ActivityBE(UUID id, String name) {
         this.id = id;
-        this.name = name;
+        setName(name);
     }
 
     @Id
@@ -34,9 +33,18 @@ public class ActivityBE {
     private String name;
 
     @Setter(AccessLevel.NONE)
+    @Column(nullable = false, unique = true)
+    private String normalizedName;
+
+    @Setter(AccessLevel.NONE)
     @Getter(AccessLevel.NONE)
     @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PackedItemBE> packedItems = new HashSet<>();
+
+    public void setName(String name) {
+        this.name = name;
+        this.normalizedName = NameNormalizer.normalize(name);
+    }
 
     public void addPackedItem(PackedItemBE packedItemBE) {
         packedItems.add(packedItemBE);

@@ -2,6 +2,7 @@ package de.luisgerlinger.backend.service.mapper;
 
 import de.luisgerlinger.backend.boundary.uidto.ActivityUiDTO;
 import de.luisgerlinger.backend.entity.ActivityBE;
+import de.luisgerlinger.backend.entity.ItemBE;
 import de.luisgerlinger.backend.entity.PackedItemBE;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;

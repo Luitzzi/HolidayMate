@@ -1,8 +1,10 @@
 package de.luisgerlinger.backend.entity;
 
+import de.luisgerlinger.backend.service.NameNormalizer;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Null;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,8 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = CategoryBE.tableName,
-        uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
+@Table(name = CategoryBE.tableName)
 @Getter
 @Setter
 public class CategoryBE {
@@ -22,9 +23,18 @@ public class CategoryBE {
     @GeneratedValue
     private UUID id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "category", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @Setter(AccessLevel.NONE)
+    @Column(nullable = false, unique = true)
+    private String normalizedName;
+
+    @OneToMany(mappedBy = "category")
     private Set<ItemBE> items = new HashSet<>();
+
+    public void setName(String name) {
+        this.name = name;
+        this.normalizedName = NameNormalizer.normalize(name);
+    }
 }

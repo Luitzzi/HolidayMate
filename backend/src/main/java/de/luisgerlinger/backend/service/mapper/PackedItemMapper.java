@@ -23,7 +23,7 @@ public abstract class PackedItemMapper {
 
     public PackedItemUiDTO toDTO(PackedItemBE entity) {
         UUID activityId = entity.getId().getActivityId();
-        UUID itemId = entity.getId().getActivityId();
+        UUID itemId = entity.getId().getItemId();
         return new PackedItemUiDTO(
                 new PackedItemIdUiDTO(activityId, itemId),
                 entity.getAmount(),

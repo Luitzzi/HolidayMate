@@ -13,6 +13,7 @@ public abstract class CategoryMapper implements AbstractMapper<CategoryBE, Categ
     public abstract CategoryUiDTO toDTO(CategoryBE entity);
 
     @Mapping(target = "items", ignore = true)
+    @Mapping(target = "normalizedName", ignore = true)
     @Override
     public abstract CategoryBE toBE(CategoryUiDTO categoryUiDTO);
 }
