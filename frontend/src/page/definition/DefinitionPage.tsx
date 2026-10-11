@@ -24,9 +24,11 @@ import {
   toDefinitionFormValues,
 } from "./utils/activityDefinitonFormUtils.ts";
 import { ActivityDefinitionForm } from "./components/ActivityDefinitionForm.tsx";
+import { useNavigate } from "react-router";
 
 export const DefinitionPage = () => {
   const { message } = App.useApp();
+  const navigate = useNavigate();
   const [form] = Form.useForm<DefinitionFormValues>();
 
   const [activities, setActivities] = useState<ActivityUiDTO[]>([]);
@@ -133,7 +135,10 @@ export const DefinitionPage = () => {
     if (selectedActivityId) {
       activityApi
         .updateActivity(selectedActivityId, activity)
-        .then(() => message.success(successText))
+        .then(() => {
+          message.success(successText);
+          navigate("/planning");
+        })
         .catch((err: Error) =>
           message.error(buildApiPostErrorMessage("activity", err.message)),
         )
@@ -141,7 +146,10 @@ export const DefinitionPage = () => {
     } else {
       activityApi
         .createActivity(activity)
-        .then(() => message.success(successText))
+        .then(() => {
+          message.success(successText);
+          navigate("/planning");
+        })
         .catch((err: Error) =>
           message.error(buildApiPostErrorMessage("activity", err.message)),
         )
