@@ -46,6 +46,7 @@ public class ActivityBA {
     @Transactional
     public ActivityUiDTO update(UUID id, ActivityUiDTO activity) {
         validateUpdateRequest(id, activity);
+        activity.setId(id);
 
         ActivityBE activityBE = activityMapper.toBE(activity);
         createNonExistingCategoriesAndItems(activityBE);
@@ -54,15 +55,10 @@ public class ActivityBA {
     }
 
     private void validateUpdateRequest(UUID id, ActivityUiDTO activity) {
-        if (id == null || activity.getId() == null) {
+        if (id == null) {
             log.warn("Tried to update an activity with no id. Id: {}, Activity: {}",
                     id, activity);
             throw new IllegalArgumentException("Update activity with null id is not allowed");
-        }
-        if (!activity.getId().equals(id)) {
-            log.warn("Tried to update an activity with another id. Id: {}, Activity: {}",
-                    id, activity);
-            throw new IllegalArgumentException("Provided id deviates from the category id");
         }
         if (!activityRepository.existsById(id)) {
             log.warn("Tried to update an non-existing activity. Id: {}, Activity: {}",
@@ -109,6 +105,7 @@ public class ActivityBA {
             throw new IllegalArgumentException("No duplicate normalizedNames for items allowed");
         }
     }
+
 
     /**
      * Unify all duplicated occurrences of a category.
