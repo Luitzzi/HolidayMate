@@ -104,8 +104,8 @@ export const DefinitionPage = () => {
 
   const showActivity = (activityId?: string) => {
     form.resetFields();
+    setSelectedActivityId(activityId ?? null);
     if (activityId) {
-      setSelectedActivityId(activityId);
       const activity = activities.find(
         (activity) => activity.id === activityId,
       );
