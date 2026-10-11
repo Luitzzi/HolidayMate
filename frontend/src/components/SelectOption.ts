@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 export type SelectOption<ValueT extends string | number> = {
   value: ValueT;
   label: string | ReactElement;
+  disabled?: boolean;
 };
 
 export const toSelectOptions = <DataT, ValueT extends string | number>(

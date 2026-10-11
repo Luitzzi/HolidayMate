@@ -12,11 +12,12 @@ import {
 } from "../utils/activityDefinitonFormUtils.ts";
 import type { SelectOption } from "../../../components/SelectOption.ts";
 import type { CategoryUiDTO } from "../../../generated/interface-api.ts";
+import { useMemo } from "react";
 
 export type ActivityDefinitionFormProps = {
   form: FormInstance<DefinitionFormValues>;
   categoriesByName: Map<string, CategoryUiDTO>;
-  categorySelectOptions: SelectOption<string>[];
+  categoryOptionsByName: Map<string, SelectOption<string>>;
   addCategory: (category: CategoryUiDTO) => void;
   isCategoryNameValid: (name: string) => boolean;
 };
@@ -24,7 +25,7 @@ export type ActivityDefinitionFormProps = {
 export const ActivityDefinitionForm = ({
   form,
   categoriesByName,
-  categorySelectOptions,
+  categoryOptionsByName,
   addCategory,
   isCategoryNameValid,
 }: ActivityDefinitionFormProps) => {
@@ -32,10 +33,34 @@ export const ActivityDefinitionForm = ({
     DEFINITION_FORM_FIELDS.categoryGroups,
     form,
   );
+
   const hasCategory = (categoryIndex: number) => {
     return Boolean(
       categoryGroups?.[categoryIndex]?.[CATEGORY_GROUP_FIELDS.categoryName],
     );
+  };
+
+  const selectedCategoryNames = useMemo(
+    () =>
+      new Set(
+        categoryGroups?.map((group) =>
+          group?.[CATEGORY_GROUP_FIELDS.categoryName]?.toLowerCase(),
+        ),
+      ),
+    [categoryGroups],
+  );
+
+  // Disables categories that are already selected in another category group
+  const getCategoryOptions = (categoryIndex: number) => {
+    const ownName =
+      categoryGroups?.[categoryIndex]?.[
+        CATEGORY_GROUP_FIELDS.categoryName
+      ]?.toLowerCase();
+    const selectedNames = selectedCategoryNames;
+    return [...categoryOptionsByName.entries()].map(([name, option]) => ({
+      ...option,
+      disabled: name !== ownName && selectedNames.has(name),
+    }));
   };
 
   return (
@@ -51,7 +76,7 @@ export const ActivityDefinitionForm = ({
         label={"Activity name"}
         rules={[{ required: true, whitespace: true, message: "Enter a name" }]}
       >
-        <Input size="large" placeholder="Camping trip" />
+        <Input size="large" placeholder="Activity name" />
       </Form.Item>
 
       <Form.List name={DEFINITION_FORM_FIELDS.categoryGroups}>
@@ -83,7 +108,7 @@ export const ActivityDefinitionForm = ({
                             style={{ marginBottom: 0 }}
                           >
                             <CategorySelect
-                              categories={categorySelectOptions}
+                              categories={getCategoryOptions(field.name)}
                               onCreate={addCategory}
                               isCategoryNameValid={isCategoryNameValid}
                             />

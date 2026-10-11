@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type {
   ActivityUiDTO,
   CategoryUiDTO,
@@ -61,9 +61,20 @@ export const DefinitionPage = () => {
   const [categoriesByName, setCategoriesByName] = useState<
     Map<string, CategoryUiDTO>
   >(new Map());
-  const [categorySelectOptions, setCategorySelectOptions] = useState<
-    SelectOption<string>[]
-  >([]);
+  const categoryOptionsByName = useMemo(
+    () =>
+      new Map(
+        [...categoriesByName].map(([name, category]) => [
+          name,
+          toSelectOption(
+            category,
+            (category) => category.name,
+            (category) => category.name,
+          ),
+        ]),
+      ),
+    [categoriesByName],
+  );
   const [categoriesLoading, setCategoriesLoading] = useState<boolean>(true);
   useEffect(() => {
     setCategoriesLoading(true);
@@ -74,13 +85,6 @@ export const DefinitionPage = () => {
           result.map((result) => [result.name.toLowerCase(), result]),
         );
         setCategoriesByName(categoriesByName);
-        setCategorySelectOptions(
-          toSelectOptions(
-            result,
-            (category) => category.name,
-            (category) => category.name,
-          ),
-        );
       })
       .catch((err: Error) =>
         message.error(buildApiFetchErrorMessage("categories", err.message)),
@@ -94,14 +98,8 @@ export const DefinitionPage = () => {
 
   const addCategory = (category: CategoryUiDTO) => {
     setCategoriesByName((prev) =>
-      prev?.set(category.name.toLowerCase(), category),
+      new Map(prev).set(category.name.toLowerCase(), category),
     );
-    const categoryOption = toSelectOption(
-      category,
-      (category) => category.name,
-      (category) => category.name,
-    );
-    setCategorySelectOptions((prev) => [...prev, categoryOption]);
   };
 
   const showActivity = (activityId?: string) => {
@@ -187,7 +185,7 @@ export const DefinitionPage = () => {
         <ActivityDefinitionForm
           form={form}
           categoriesByName={categoriesByName}
-          categorySelectOptions={categorySelectOptions}
+          categoryOptionsByName={categoryOptionsByName}
           addCategory={addCategory}
           isCategoryNameValid={isCategoryNameValid}
         />
