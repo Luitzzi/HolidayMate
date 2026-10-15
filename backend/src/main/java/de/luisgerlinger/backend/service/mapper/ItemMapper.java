@@ -16,4 +16,5 @@ public abstract class ItemMapper implements AbstractMapper<ItemBE, ItemUiDTO> {
     @Mapping(target = "normalizedName", ignore = true)
     @Override
     public abstract ItemBE toBE(ItemUiDTO itemUiDTO);
+
 }

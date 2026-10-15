@@ -1,6 +1,6 @@
 import { Divider, Flex, Typography } from "antd";
 import type { ReactNode } from "react";
-import { tokens } from "../theme/tokens.ts";
+import { tokens } from "../../theme/tokens.ts";
 
 type TitleDividerProps = {
   title: string;

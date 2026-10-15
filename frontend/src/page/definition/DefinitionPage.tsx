@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type {
   ActivityUiDTO,
   CategoryUiDTO,
+  ItemUiDTO,
 } from "../../generated/interface-api.ts";
 import { activityApi } from "../../api/activityApi.ts";
 import {
@@ -10,14 +11,14 @@ import {
 } from "../../api/utils/fetch.ts";
 import { categoryApi } from "../../api/categoryApi.ts";
 import { App, Button, Flex, Form, Select, Spin } from "antd";
-import { SectionHeader } from "../../components/SectionHeader.tsx";
+import { SectionHeader } from "../../common/components/SectionHeader.tsx";
 import { tokens } from "../../theme/tokens.ts";
 import { PlusOutlined } from "@ant-design/icons";
 import {
   type SelectOption,
   toSelectOption,
   toSelectOptions,
-} from "../../components/SelectOption.ts";
+} from "../../common/components/input/SelectOption.ts";
 import {
   type DefinitionFormValues,
   toActivityUiDTO,
@@ -25,6 +26,7 @@ import {
 } from "./utils/activityDefinitonFormUtils.ts";
 import { ActivityDefinitionForm } from "./components/ActivityDefinitionForm.tsx";
 import { useNavigate } from "react-router";
+import { itemApi } from "../../api/itemApi.ts";
 
 export const DefinitionPage = () => {
   const { message } = App.useApp();
@@ -99,6 +101,44 @@ export const DefinitionPage = () => {
   const addCategory = (category: CategoryUiDTO) => {
     setCategoriesByName((prev) =>
       new Map(prev).set(category.name.toLowerCase(), category),
+    );
+  };
+
+  const [itemsByName, setItemsByName] = useState<Map<string, ItemUiDTO>>(
+    new Map(),
+  );
+  const [itemsLoading, setItemsLoading] = useState<boolean>(false);
+  const itemOptionsByName = useMemo(() => {
+    return new Map(
+      [...itemsByName].map(([name, item]) => [
+        name,
+        toSelectOption(
+          item,
+          (item) => item.name,
+          (item) => item.name,
+        ),
+      ]),
+    );
+  }, [itemsByName]);
+  useEffect(() => {
+    setItemsLoading(true);
+    itemApi
+      .getAllItems()
+      .then((result) => {
+        const itemsByName = new Map(
+          result.map((result) => [result.name.toLowerCase(), result]),
+        );
+        setItemsByName(itemsByName);
+      })
+      .catch((err: Error) =>
+        message.error(buildApiFetchErrorMessage("items", err.message)),
+      )
+      .finally(() => setItemsLoading(false));
+  }, [message]);
+
+  const addItem = (name: string, category: CategoryUiDTO) => {
+    setItemsByName((prev) =>
+      new Map(prev).set(name.toLowerCase(), { name, category }),
     );
   };
 
@@ -188,6 +228,9 @@ export const DefinitionPage = () => {
           categoryOptionsByName={categoryOptionsByName}
           addCategory={addCategory}
           isCategoryNameValid={isCategoryNameValid}
+          itemsLoading={itemsLoading}
+          itemOptionsByName={itemOptionsByName}
+          addItem={addItem}
         />
       )}
 

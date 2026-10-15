@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
-@Tag(name = "Categories", description = "Item categories used to group packing lists")
+@Tag(name = "Categories", description = "Item categories used to group items")
 public class CategoryUiController {
 
     private final CategoryBA categoryBA;

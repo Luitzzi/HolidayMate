@@ -1,5 +1,13 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Collapse, Flex, Form, type FormInstance, Input } from "antd";
+import {
+  Button,
+  Collapse,
+  Flex,
+  Form,
+  type FormInstance,
+  Input,
+  Spin,
+} from "antd";
 import { tokens } from "../../../theme/tokens.ts";
 import { CategorySelect } from "./CategorySelect.tsx";
 import { PackedItemList } from "./PackedItemList.tsx";
@@ -10,8 +18,11 @@ import {
   EMPTY_CATEGORY_GROUP,
   EMPTY_FORM_VALUES,
 } from "../utils/activityDefinitonFormUtils.ts";
-import type { SelectOption } from "../../../components/SelectOption.ts";
-import type { CategoryUiDTO } from "../../../generated/interface-api.ts";
+import type { SelectOption } from "../../../common/components/input/SelectOption.ts";
+import type {
+  CategoryUiDTO,
+  ItemUiDTO,
+} from "../../../generated/interface-api.ts";
 import { useMemo } from "react";
 
 export type ActivityDefinitionFormProps = {
@@ -20,6 +31,9 @@ export type ActivityDefinitionFormProps = {
   categoryOptionsByName: Map<string, SelectOption<string>>;
   addCategory: (category: CategoryUiDTO) => void;
   isCategoryNameValid: (name: string) => boolean;
+  itemsLoading: boolean;
+  itemOptionsByName: Map<string, SelectOption<string>>;
+  addItem: (name: string, category: CategoryUiDTO) => void;
 };
 
 export const ActivityDefinitionForm = ({
@@ -28,6 +42,9 @@ export const ActivityDefinitionForm = ({
   categoryOptionsByName,
   addCategory,
   isCategoryNameValid,
+  itemsLoading,
+  itemOptionsByName,
+  addItem,
 }: ActivityDefinitionFormProps) => {
   const categoryGroups = Form.useWatch(
     DEFINITION_FORM_FIELDS.categoryGroups,
@@ -129,10 +146,14 @@ export const ActivityDefinitionForm = ({
                       ),
                       // Renders closed panels too, so their fields are validated
                       forceRender: true,
-                      children: (
+                      children: itemsLoading ? (
+                        <Spin />
+                      ) : (
                         <PackedItemList
                           categoriesByName={categoriesByName}
                           categoryItemIndex={field.name}
+                          itemOptionsByName={itemOptionsByName}
+                          addItem={addItem}
                         />
                       ),
                     },

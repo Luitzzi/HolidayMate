@@ -27,7 +27,7 @@ public class CategoryBA {
     }
 
     public CategoryUiDTO create(CategoryUiDTO category) {
-        CategoryBE created = categoryRepository.save(
+        CategoryBE created = categoryRepository.persist(
                 categoryMapper.toBE(category));
         return categoryMapper.toDTO(created);
     }

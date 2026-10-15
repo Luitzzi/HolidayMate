@@ -17,7 +17,7 @@ import {
 import {
   SectionHeader,
   TitleDivider,
-} from "../../components/SectionHeader.tsx";
+} from "../../common/components/SectionHeader.tsx";
 import { tokens } from "../../theme/tokens.ts";
 import { Caption, DocsNav, Example, Section } from "./DocsLayout.tsx";
 import { blockStyle } from "./docsStyles.ts";

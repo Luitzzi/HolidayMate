@@ -1,7 +1,7 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Empty, Flex, Listy, Tag, Typography } from "antd";
 import { useNavigate } from "react-router";
-import { SectionHeader } from "../../components/SectionHeader.tsx";
+import { SectionHeader } from "../../common/components/SectionHeader.tsx";
 import { tokens } from "../../theme/tokens.ts";
 
 type PlannedHoliday = {

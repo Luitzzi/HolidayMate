@@ -3,7 +3,7 @@ import { App, Button, Divider, Select } from "antd";
 import { useState } from "react";
 import type { CategoryUiDTO } from "../../../generated/interface-api.ts";
 import { tokens } from "../../../theme/tokens.ts";
-import type { SelectOption } from "../../../components/SelectOption.ts";
+import type { SelectOption } from "../../../common/components/input/SelectOption.ts";
 
 type CategorySelectProps = {
   categories: SelectOption<string>[];

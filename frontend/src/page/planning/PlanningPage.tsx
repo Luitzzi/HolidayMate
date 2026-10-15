@@ -14,7 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   SectionHeader,
   TitleDivider,
-} from "../../components/SectionHeader.tsx";
+} from "../../common/components/SectionHeader.tsx";
 import type { ActivityUiDTO } from "../../generated/interface-api.ts";
 import { tokens } from "../../theme/tokens.ts";
 import { buildPackingList, type PackingListEntry } from "./packingList.ts";

@@ -1,6 +1,6 @@
 import { Badge, Button, Col, Flex, Grid, Row, Tag, Typography } from "antd";
 import { Fragment } from "react";
-import { SectionHeader } from "../../components/SectionHeader.tsx";
+import { SectionHeader } from "../../common/components/SectionHeader.tsx";
 import { tokens } from "../../theme/tokens.ts";
 import {
   Caption,

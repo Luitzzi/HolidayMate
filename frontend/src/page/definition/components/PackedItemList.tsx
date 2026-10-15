@@ -1,5 +1,5 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Flex, Form, Input, InputNumber } from "antd";
+import { Button, Flex, Form, InputNumber } from "antd";
 import { tokens } from "../../../theme/tokens.ts";
 import {
   buildEmptyPackedItem,
@@ -11,16 +11,22 @@ import type {
   ItemUiDTO,
   PackedItemUiDTO,
 } from "../../../generated/interface-api.ts";
+import type { SelectOption } from "../../../common/components/input/SelectOption.ts";
+import { AddableSelect } from "../../../common/components/input/AddableSelect.tsx";
 
 type PackedItemListProps = {
   categoriesByName: Map<string, CategoryUiDTO>;
   // Index of the category card in the "categoryGroups" Form.List
   categoryItemIndex: number;
+  itemOptionsByName: Map<string, SelectOption<string>>;
+  addItem: (name: string, category: CategoryUiDTO) => void;
 };
 
 export const PackedItemList = ({
   categoriesByName,
   categoryItemIndex,
+  itemOptionsByName,
+  addItem,
 }: PackedItemListProps) => {
   const form = Form.useFormInstance();
   const categoryName = Form.useWatch<string | undefined>(
@@ -31,13 +37,21 @@ export const PackedItemList = ({
     ],
     form,
   );
+  const category =
+    categoryName !== undefined
+      ? categoriesByName.get(categoryName.trim().toLowerCase())
+      : undefined;
 
   const getEmptyPackedItem = (): PackedItemUiDTO => {
     if (categoryName === undefined)
       throw Error("Item creation is only allowed when a category name exists");
 
-    const maybeCategory = categoriesByName.get(categoryName.toLowerCase());
-    return buildEmptyPackedItem(categoryName, maybeCategory);
+    return buildEmptyPackedItem(categoryName, category);
+  };
+
+  const isItemNameValid = (name: string) => {
+    const normalizedName = name.trim().toLowerCase();
+    return normalizedName !== "" && !itemOptionsByName.has(normalizedName);
   };
 
   return (
@@ -61,7 +75,17 @@ export const PackedItemList = ({
                 ]}
                 style={{ flex: 1, marginBottom: 0 }}
               >
-                <Input size="large" placeholder="Item" />
+                <AddableSelect
+                  selectOptions={[...itemOptionsByName.values()]}
+                  onCreate={(name) => {
+                    if (category === undefined)
+                      throw Error(
+                        "Category must not be undefined when selecting an item",
+                      );
+                    return addItem(name, category);
+                  }}
+                  isElementValid={isItemNameValid}
+                />
               </Form.Item>
 
               <Form.Item

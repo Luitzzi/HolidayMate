@@ -1,7 +1,7 @@
 import { Col, Flex, Row, Segmented, Typography } from "antd";
 import type { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { TitleDivider } from "../../components/SectionHeader.tsx";
+import { TitleDivider } from "../../common/components/SectionHeader.tsx";
 import { tokens } from "../../theme/tokens.ts";
 import { panelStyle } from "./docsStyles.ts";
 
