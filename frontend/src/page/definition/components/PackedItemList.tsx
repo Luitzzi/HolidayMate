@@ -52,15 +52,30 @@ export const PackedItemList = ({
     return buildEmptyPackedItem(categoryName, category);
   };
 
+  // Item names are unique across all categories, so only items of this category are selectable
   const itemOptions = useMemo(
     () =>
       toSelectOptions(
-        [...items.byName.values()],
+        [...items.byName.values()].filter(
+          (item) =>
+            categoryName !== undefined &&
+            normalizeName(item.category.name) === normalizeName(categoryName),
+        ),
         (item) => item.name,
         (item) => item.name,
       ),
-    [items.byName],
+    [items.byName, categoryName],
   );
+
+  // Resolves a selected name to the existing item (with id) or a new item of this category
+  const toItem = (itemName: string): ItemUiDTO => {
+    if (category === undefined)
+      throw Error("Category must not be undefined when selecting an item");
+
+    return (
+      items.byName.get(normalizeName(itemName)) ?? { name: itemName, category }
+    );
+  };
 
   return (
     <Form.List name={[categoryItemIndex, CATEGORY_GROUP_FIELDS.packedItems]}>
@@ -69,15 +84,16 @@ export const PackedItemList = ({
           {fields.map(({ key, name }) => (
             <Flex key={key} gap={tokens.gap.small} align="start">
               <Form.Item
-                name={[
-                  name,
-                  "ofItem" satisfies keyof PackedItemUiDTO,
-                  "name" satisfies keyof ItemUiDTO,
-                ]}
+                name={[name, "ofItem" satisfies keyof PackedItemUiDTO]}
+                // The select only works with the item name
+                getValueProps={(item?: ItemUiDTO) => ({
+                  value: item?.name || undefined,
+                })}
+                normalize={toItem}
                 rules={[
                   {
-                    required: true,
-                    whitespace: true,
+                    validator: (_, item?: ItemUiDTO) =>
+                      item?.name.trim() ? Promise.resolve() : Promise.reject(),
                     message: "Enter an item",
                   },
                 ]}
@@ -85,13 +101,7 @@ export const PackedItemList = ({
               >
                 <AddableSelect
                   selectOptions={itemOptions}
-                  onCreate={(name) => {
-                    if (category === undefined)
-                      throw Error(
-                        "Category must not be undefined when selecting an item",
-                      );
-                    items.add({ name, category });
-                  }}
+                  onCreate={(name) => items.add(toItem(name))}
                   isElementValid={items.isNameAvailable}
                 />
               </Form.Item>
