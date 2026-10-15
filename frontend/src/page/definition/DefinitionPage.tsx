@@ -1,9 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import type {
-  ActivityUiDTO,
-  CategoryUiDTO,
-  ItemUiDTO,
-} from "../../generated/interface-api.ts";
+import { useEffect, useState } from "react";
+import type { ActivityUiDTO } from "../../generated/interface-api.ts";
 import { activityApi } from "../../api/activityApi.ts";
 import {
   buildApiFetchErrorMessage,
@@ -16,7 +12,6 @@ import { tokens } from "../../theme/tokens.ts";
 import { PlusOutlined } from "@ant-design/icons";
 import {
   type SelectOption,
-  toSelectOption,
   toSelectOptions,
 } from "../../common/components/input/SelectOption.ts";
 import {
@@ -27,6 +22,7 @@ import {
 import { ActivityDefinitionForm } from "./components/ActivityDefinitionForm.tsx";
 import { useNavigate } from "react-router";
 import { itemApi } from "../../api/itemApi.ts";
+import { useNamedEntities } from "./hooks/useNamedEntities.ts";
 
 export const DefinitionPage = () => {
   const { message } = App.useApp();
@@ -60,89 +56,13 @@ export const DefinitionPage = () => {
     null,
   );
 
-  const [categoriesByName, setCategoriesByName] = useState<
-    Map<string, CategoryUiDTO>
-  >(new Map());
-  const categoryOptionsByName = useMemo(
-    () =>
-      new Map(
-        [...categoriesByName].map(([name, category]) => [
-          name,
-          toSelectOption(
-            category,
-            (category) => category.name,
-            (category) => category.name,
-          ),
-        ]),
-      ),
-    [categoriesByName],
+  const categories = useNamedEntities(
+    categoryApi.getAllCategories,
+    "categories",
   );
-  const [categoriesLoading, setCategoriesLoading] = useState<boolean>(true);
-  useEffect(() => {
-    setCategoriesLoading(true);
-    categoryApi
-      .getAllCategories()
-      .then((result) => {
-        const categoriesByName = new Map(
-          result.map((result) => [result.name.toLowerCase(), result]),
-        );
-        setCategoriesByName(categoriesByName);
-      })
-      .catch((err: Error) =>
-        message.error(buildApiFetchErrorMessage("categories", err.message)),
-      )
-      .finally(() => setCategoriesLoading(false));
-  }, [message]);
+  const items = useNamedEntities(itemApi.getAllItems, "items");
 
-  const isCategoryNameValid = (name: string) => {
-    return name !== "" && !categoriesByName?.has(name.toLowerCase());
-  };
-
-  const addCategory = (category: CategoryUiDTO) => {
-    setCategoriesByName((prev) =>
-      new Map(prev).set(category.name.toLowerCase(), category),
-    );
-  };
-
-  const [itemsByName, setItemsByName] = useState<Map<string, ItemUiDTO>>(
-    new Map(),
-  );
-  const [itemsLoading, setItemsLoading] = useState<boolean>(false);
-  const itemOptionsByName = useMemo(() => {
-    return new Map(
-      [...itemsByName].map(([name, item]) => [
-        name,
-        toSelectOption(
-          item,
-          (item) => item.name,
-          (item) => item.name,
-        ),
-      ]),
-    );
-  }, [itemsByName]);
-  useEffect(() => {
-    setItemsLoading(true);
-    itemApi
-      .getAllItems()
-      .then((result) => {
-        const itemsByName = new Map(
-          result.map((result) => [result.name.toLowerCase(), result]),
-        );
-        setItemsByName(itemsByName);
-      })
-      .catch((err: Error) =>
-        message.error(buildApiFetchErrorMessage("items", err.message)),
-      )
-      .finally(() => setItemsLoading(false));
-  }, [message]);
-
-  const addItem = (name: string, category: CategoryUiDTO) => {
-    setItemsByName((prev) =>
-      new Map(prev).set(name.toLowerCase(), { name, category }),
-    );
-  };
-
-  const showActivity = (activityId?: string) => {
+  const loadActivity = (activityId?: string) => {
     form.resetFields();
     setSelectedActivityId(activityId ?? null);
     if (activityId) {
@@ -153,12 +73,16 @@ export const DefinitionPage = () => {
         const fieldValues = toDefinitionFormValues(activity);
         form.setFieldsValue(fieldValues);
       } else {
-        message.error("Could not find the selectedActivity");
+        message.error("Could not find the selected activity");
       }
     }
   };
 
   const [saving, setSaving] = useState<boolean>(false);
+  const onSuccess = () => {
+    message.success("Activity was saved");
+    navigate("/planning");
+  };
   const saveActivity = async () => {
     try {
       await form.validateFields({ recursive: true });
@@ -169,14 +93,10 @@ export const DefinitionPage = () => {
     const formValues: DefinitionFormValues = form.getFieldsValue(true);
     const activity: ActivityUiDTO = toActivityUiDTO(formValues);
     setSaving(true);
-    const successText = "Activity was saved";
     if (selectedActivityId) {
       activityApi
         .updateActivity(selectedActivityId, activity)
-        .then(() => {
-          message.success(successText);
-          navigate("/planning");
-        })
+        .then(() => onSuccess())
         .catch((err: Error) =>
           message.error(buildApiPostErrorMessage("activity", err.message)),
         )
@@ -184,10 +104,7 @@ export const DefinitionPage = () => {
     } else {
       activityApi
         .createActivity(activity)
-        .then(() => {
-          message.success(successText);
-          navigate("/planning");
-        })
+        .then(() => onSuccess())
         .catch((err: Error) =>
           message.error(buildApiPostErrorMessage("activity", err.message)),
         )
@@ -211,26 +128,21 @@ export const DefinitionPage = () => {
           loading={activitiesLoading}
           value={selectedActivityId}
           options={activityOptions}
-          onChange={(id) => showActivity(id)}
+          onChange={(id) => loadActivity(id)}
           style={{ flex: 1 }}
         />
-        <Button icon={<PlusOutlined />} onClick={() => showActivity()}>
+        <Button icon={<PlusOutlined />} onClick={() => loadActivity()}>
           New activity
         </Button>
       </Flex>
 
-      {categoriesLoading ? (
+      {categories.loading ? (
         <Spin />
       ) : (
         <ActivityDefinitionForm
           form={form}
-          categoriesByName={categoriesByName}
-          categoryOptionsByName={categoryOptionsByName}
-          addCategory={addCategory}
-          isCategoryNameValid={isCategoryNameValid}
-          itemsLoading={itemsLoading}
-          itemOptionsByName={itemOptionsByName}
-          addItem={addItem}
+          categories={categories}
+          items={items}
         />
       )}
 

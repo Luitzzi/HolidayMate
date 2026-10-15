@@ -16,12 +16,10 @@ export const useFetch = <T>(
   dependencies: DependencyList,
 ): [T | undefined, boolean, Error | undefined] => {
   const [result, setResult] = useState<T | undefined>(undefined);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | undefined>(undefined);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLoading(true);
     fetch()
       .then((result) => setResult(result))
       .catch((err) => setError(err))

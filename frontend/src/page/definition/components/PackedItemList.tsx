@@ -11,22 +11,25 @@ import type {
   ItemUiDTO,
   PackedItemUiDTO,
 } from "../../../generated/interface-api.ts";
-import type { SelectOption } from "../../../common/components/input/SelectOption.ts";
+import { toSelectOptions } from "../../../common/components/input/SelectOption.ts";
 import { AddableSelect } from "../../../common/components/input/AddableSelect.tsx";
+import { useMemo } from "react";
+import {
+  type NamedEntities,
+  normalizeName,
+} from "../hooks/useNamedEntities.ts";
 
 type PackedItemListProps = {
   categoriesByName: Map<string, CategoryUiDTO>;
   // Index of the category card in the "categoryGroups" Form.List
   categoryItemIndex: number;
-  itemOptionsByName: Map<string, SelectOption<string>>;
-  addItem: (name: string, category: CategoryUiDTO) => void;
+  items: NamedEntities<ItemUiDTO>;
 };
 
 export const PackedItemList = ({
   categoriesByName,
   categoryItemIndex,
-  itemOptionsByName,
-  addItem,
+  items,
 }: PackedItemListProps) => {
   const form = Form.useFormInstance();
   const categoryName = Form.useWatch<string | undefined>(
@@ -39,7 +42,7 @@ export const PackedItemList = ({
   );
   const category =
     categoryName !== undefined
-      ? categoriesByName.get(categoryName.trim().toLowerCase())
+      ? categoriesByName.get(normalizeName(categoryName))
       : undefined;
 
   const getEmptyPackedItem = (): PackedItemUiDTO => {
@@ -49,10 +52,15 @@ export const PackedItemList = ({
     return buildEmptyPackedItem(categoryName, category);
   };
 
-  const isItemNameValid = (name: string) => {
-    const normalizedName = name.trim().toLowerCase();
-    return normalizedName !== "" && !itemOptionsByName.has(normalizedName);
-  };
+  const itemOptions = useMemo(
+    () =>
+      toSelectOptions(
+        [...items.byName.values()],
+        (item) => item.name,
+        (item) => item.name,
+      ),
+    [items.byName],
+  );
 
   return (
     <Form.List name={[categoryItemIndex, CATEGORY_GROUP_FIELDS.packedItems]}>
@@ -76,15 +84,15 @@ export const PackedItemList = ({
                 style={{ flex: 1, marginBottom: 0 }}
               >
                 <AddableSelect
-                  selectOptions={[...itemOptionsByName.values()]}
+                  selectOptions={itemOptions}
                   onCreate={(name) => {
                     if (category === undefined)
                       throw Error(
                         "Category must not be undefined when selecting an item",
                       );
-                    return addItem(name, category);
+                    items.add({ name, category });
                   }}
-                  isElementValid={isItemNameValid}
+                  isElementValid={items.isNameAvailable}
                 />
               </Form.Item>
 

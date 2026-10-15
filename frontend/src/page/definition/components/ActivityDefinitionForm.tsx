@@ -9,7 +9,6 @@ import {
   Spin,
 } from "antd";
 import { tokens } from "../../../theme/tokens.ts";
-import { CategorySelect } from "./CategorySelect.tsx";
 import { PackedItemList } from "./PackedItemList.tsx";
 import {
   CATEGORY_GROUP_FIELDS,
@@ -18,33 +17,27 @@ import {
   EMPTY_CATEGORY_GROUP,
   EMPTY_FORM_VALUES,
 } from "../utils/activityDefinitonFormUtils.ts";
-import type { SelectOption } from "../../../common/components/input/SelectOption.ts";
+import { AddableSelect } from "../../../common/components/input/AddableSelect.tsx";
 import type {
   CategoryUiDTO,
   ItemUiDTO,
 } from "../../../generated/interface-api.ts";
 import { useMemo } from "react";
+import {
+  type NamedEntities,
+  normalizeName,
+} from "../hooks/useNamedEntities.ts";
 
 export type ActivityDefinitionFormProps = {
   form: FormInstance<DefinitionFormValues>;
-  categoriesByName: Map<string, CategoryUiDTO>;
-  categoryOptionsByName: Map<string, SelectOption<string>>;
-  addCategory: (category: CategoryUiDTO) => void;
-  isCategoryNameValid: (name: string) => boolean;
-  itemsLoading: boolean;
-  itemOptionsByName: Map<string, SelectOption<string>>;
-  addItem: (name: string, category: CategoryUiDTO) => void;
+  categories: NamedEntities<CategoryUiDTO>;
+  items: NamedEntities<ItemUiDTO>;
 };
 
 export const ActivityDefinitionForm = ({
   form,
-  categoriesByName,
-  categoryOptionsByName,
-  addCategory,
-  isCategoryNameValid,
-  itemsLoading,
-  itemOptionsByName,
-  addItem,
+  categories,
+  items,
 }: ActivityDefinitionFormProps) => {
   const categoryGroups = Form.useWatch(
     DEFINITION_FORM_FIELDS.categoryGroups,
@@ -61,7 +54,7 @@ export const ActivityDefinitionForm = ({
     () =>
       new Set(
         categoryGroups?.map((group) =>
-          group?.[CATEGORY_GROUP_FIELDS.categoryName]?.toLowerCase(),
+          normalizeName(group?.[CATEGORY_GROUP_FIELDS.categoryName] ?? ""),
         ),
       ),
     [categoryGroups],
@@ -69,14 +62,14 @@ export const ActivityDefinitionForm = ({
 
   // Disables categories that are already selected in another category group
   const getCategoryOptions = (categoryIndex: number) => {
-    const ownName =
-      categoryGroups?.[categoryIndex]?.[
-        CATEGORY_GROUP_FIELDS.categoryName
-      ]?.toLowerCase();
-    const selectedNames = selectedCategoryNames;
-    return [...categoryOptionsByName.entries()].map(([name, option]) => ({
-      ...option,
-      disabled: name !== ownName && selectedNames.has(name),
+    const ownName = normalizeName(
+      categoryGroups?.[categoryIndex]?.[CATEGORY_GROUP_FIELDS.categoryName] ??
+        "",
+    );
+    return [...categories.byName].map(([name, category]) => ({
+      value: category.name,
+      label: category.name,
+      disabled: name !== ownName && selectedCategoryNames.has(name),
     }));
   };
 
@@ -124,10 +117,11 @@ export const ActivityDefinitionForm = ({
                             ]}
                             style={{ marginBottom: 0 }}
                           >
-                            <CategorySelect
-                              categories={getCategoryOptions(field.name)}
-                              onCreate={addCategory}
-                              isCategoryNameValid={isCategoryNameValid}
+                            <AddableSelect
+                              placeholder="Select or create a category"
+                              selectOptions={getCategoryOptions(field.name)}
+                              onCreate={(name) => categories.add({ name })}
+                              isElementValid={categories.isNameAvailable}
                             />
                           </Form.Item>
                         </div>
@@ -146,14 +140,13 @@ export const ActivityDefinitionForm = ({
                       ),
                       // Renders closed panels too, so their fields are validated
                       forceRender: true,
-                      children: itemsLoading ? (
+                      children: items.loading ? (
                         <Spin />
                       ) : (
                         <PackedItemList
-                          categoriesByName={categoriesByName}
+                          categoriesByName={categories.byName}
                           categoryItemIndex={field.name}
-                          itemOptionsByName={itemOptionsByName}
-                          addItem={addItem}
+                          items={items}
                         />
                       ),
                     },
