@@ -32,12 +32,16 @@ export type ActivityDefinitionFormProps = {
   form: FormInstance<DefinitionFormValues>;
   categories: NamedEntities<CategoryUiDTO>;
   items: NamedEntities<ItemUiDTO>;
+  onFinish: () => void;
+  onFinishFailed: () => void;
 };
 
 export const ActivityDefinitionForm = ({
   form,
   categories,
   items,
+  onFinish,
+  onFinishFailed,
 }: ActivityDefinitionFormProps) => {
   const categoryGroups = Form.useWatch(
     DEFINITION_FORM_FIELDS.categoryGroups,
@@ -79,6 +83,8 @@ export const ActivityDefinitionForm = ({
       initialValues={EMPTY_FORM_VALUES}
       layout="vertical"
       requiredMark={false}
+      onFinish={onFinish}
+      onFinishFailed={onFinishFailed}
       style={{ flex: 1 }}
     >
       <Form.Item
@@ -120,7 +126,6 @@ export const ActivityDefinitionForm = ({
                             <AddableSelect
                               placeholder="Select or create a category"
                               selectOptions={getCategoryOptions(field.name)}
-                              onCreate={(name) => categories.add({ name })}
                               isElementValid={categories.isNameAvailable}
                             />
                           </Form.Item>

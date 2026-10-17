@@ -15,7 +15,7 @@ export type AddableSelectProps<ValueT extends string | number> = Omit<
   "options"
 > & {
   selectOptions: SelectOption<ValueT>[];
-  onCreate: (newName: string) => void;
+  onCreate?: (newName: string) => void;
   isElementValid?: (newName: string) => boolean;
 };
 
@@ -34,7 +34,7 @@ export const AddableSelect = <ValueT extends string | number>({
     : !selectProps.disabled;
 
   const create = () => {
-    onCreate(newName);
+    onCreate?.(newName);
     selectProps.onChange?.(newName);
     setSearch("");
     setOpen(false);

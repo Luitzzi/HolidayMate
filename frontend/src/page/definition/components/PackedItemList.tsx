@@ -101,7 +101,6 @@ export const PackedItemList = ({
               >
                 <AddableSelect
                   selectOptions={itemOptions}
-                  onCreate={(name) => items.add(toItem(name))}
                   isElementValid={items.isNameAvailable}
                 />
               </Form.Item>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ActivityUiDTO } from "../../generated/interface-api.ts";
 import { activityApi } from "../../api/activityApi.ts";
 import {
@@ -15,7 +15,10 @@ import {
   toSelectOptions,
 } from "../../common/components/input/SelectOption.ts";
 import {
+  DEFINITION_FORM_FIELDS,
   type DefinitionFormValues,
+  getUsedCategories,
+  getUsedItems,
   toActivityUiDTO,
   toDefinitionFormValues,
 } from "./utils/activityDefinitonFormUtils.ts";
@@ -56,11 +59,24 @@ export const DefinitionPage = () => {
     null,
   );
 
+  const categoryGroups = Form.useWatch(
+    DEFINITION_FORM_FIELDS.categoryGroups,
+    form,
+  );
+  const usedCategories = useMemo(
+    () => getUsedCategories(categoryGroups),
+    [categoryGroups],
+  );
+  const usedItems = useMemo(
+    () => getUsedItems(categoryGroups),
+    [categoryGroups],
+  );
   const categories = useNamedEntities(
     categoryApi.getAllCategories,
     "categories",
+    usedCategories,
   );
-  const items = useNamedEntities(itemApi.getAllItems, "items");
+  const items = useNamedEntities(itemApi.getAllItems, "items", usedItems);
 
   const loadActivity = (activityId?: string) => {
     form.resetFields();
@@ -83,13 +99,8 @@ export const DefinitionPage = () => {
     message.success("Activity was saved");
     navigate("/planning");
   };
-  const saveActivity = async () => {
-    try {
-      await form.validateFields({ recursive: true });
-    } catch {
-      message.error("Please fill out all input fields");
-      return;
-    }
+  const saveActivity = () => {
+    // onFinish values only contain registered fields, so e.g. packed item ids would be missing
     const formValues: DefinitionFormValues = form.getFieldsValue(true);
     const activity: ActivityUiDTO = toActivityUiDTO(formValues);
     setSaving(true);
@@ -143,6 +154,10 @@ export const DefinitionPage = () => {
           form={form}
           categories={categories}
           items={items}
+          onFinish={saveActivity}
+          onFinishFailed={() =>
+            message.error("Please fill out all input fields")
+          }
         />
       )}
 
@@ -160,7 +175,7 @@ export const DefinitionPage = () => {
           size="large"
           block
           loading={saving}
-          onClick={saveActivity}
+          onClick={() => form.submit()}
           style={{ marginBottom: tokens.margin.small }}
         >
           Save activity

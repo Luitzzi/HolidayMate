@@ -1,9 +1,11 @@
 import type {
   ActivityUiDTO,
   CategoryUiDTO,
+  ItemUiDTO,
   PackedItemUiDTO,
 } from "../../../generated/interface-api.ts";
 import type {} from "../DefinitionPage.tsx";
+import { normalizeName } from "../hooks/useNamedEntities.ts";
 
 export type DefinitionFormValues = {
   activityName: string;
@@ -84,3 +86,19 @@ export const toActivityUiDTO = (
     packedItems: packedItems,
   };
 };
+
+export const getUsedCategories = (
+  categoryGroups: CategoryGroup[] = [],
+): CategoryUiDTO[] =>
+  categoryGroups.flatMap((group) =>
+    group.categoryName ? [{ name: group.categoryName }] : [],
+  );
+
+export const getUsedItems = (
+  categoryGroups: CategoryGroup[] = [],
+): ItemUiDTO[] =>
+  categoryGroups
+    .flatMap((group) =>
+      group.packedItems.map((packedItem) => packedItem.ofItem),
+    )
+    .filter((item) => normalizeName(item.name) !== "");
