@@ -1,48 +1,23 @@
-# HolidayMate
+![SpringBoot Badge](https://img.shields.io/badge/springboot-000000?style=for-the-badge&logo=springboot&logoColor=green)
+![React Badge](https://img.shields.io/badge/-React-333333?style=for-the-badge&logo=React)
+![TS Badge](https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=FFF&style=for-the-badge)
+![Postgres Badge](https://img.shields.io/badge/PostgreSQL-316192?logo=postgresql&logoColor=white&style=for-the-badge)
+![Docker Badge](https://img.shields.io/badge/docker-257bd6?style=for-the-badge&logo=docker&logoColor=white)
+![Banner](images/banner.png)
+(AI Generated)<br>
 
-A web application for building reusable packing lists per holiday type.
+# Welcome to **HolidayMate** <br>
+A full-stack activity/packing-list planning application.
+
+## What is it about
+
+In HolidayMate you can define activites, then plan a Holiday with multiple 
+activities and generate your individual packing list. <br>
 Learn from your mistakes and come prepared in your next holiday.
 Pack what you actually need instead of finding out on location!
 
-## Overview
-
-Most people only learn what they should have packed while already on holiday. 
-HolidayMate captures that experience: 
-Define a packing list once for a holiday type (e.g. kayaking, beach)
-and reuse it for every future trip of that type.
-
-**Examples**
-
-| Holiday type | Items worth remembering                                  |
-| ------------ | -------------------------------------------------------- |
-| Kayaking     | Extra set of clothes, bike gloves (prevent blisters)     |
-| Beach        | Games and other items you specifically want to bring     |
-
-## Use Case
-
-The application has two menus.
-
-### 1. Definition Menu
-
-Manage activity types and their packing lists.
-
-- Create / Edit / Delete an activity.
-
-### 2. Planning Menu
-
-Plan a concrete holiday based on a holiday type.
-
-- Select a holiday type
-- Generate the packing list for the trip
-
-**Planned (vision)**
-
-- Enter travel date, location and holiday type
-- Fetch the weather forecast for the location if the trip starts within 7 days
-- Calculate the packing list from the forecast using configurable clothing rules
-    - Example rule: *daytime temperature < 15 °C → pack a jacket*
-- Define rules in an activity that only should activate if a condition is met.
-  Expl. extra pair of cloting if weather could be bad
+## UI Interfaces
+![Example](images/holiday-mate.gif)
 
 ## Tech Stack
 
